@@ -104,6 +104,6 @@ is.on("connection", function (socket) {
 
 });
 
-http.listen(process.env.PORT, function () {
-  console.log("Клиентский канал запущен, порт: " + process.env.PORT);
+http.listen(5002, function () {
+  console.log("Клиентский канал запущен, порт: " + 5002);
 });
