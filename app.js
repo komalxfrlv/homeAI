@@ -25,7 +25,7 @@ const mqttClient = mqtt.connect(mqttUrl, mqttOptions);
 mqttClient.on("connect", function () {
   if (mqttClient.connected) {
     console.log("conected");
-    client.subscribe("#");  // Подпись на все топики
+    mqttClient.subscribe("#");  // Подпись на все топики
   } else {
     console.log("disconeted");
   }
