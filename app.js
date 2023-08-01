@@ -1,4 +1,7 @@
-import { PrismaClient } from '@prisma/client'
+//import { PrismaClient } from '@prisma/client'
+//const prisma = new PrismaClient()
+
+const express = require('express');
 
 const mqtt = require("mqtt");
 var is = require("socket.io")(http);
@@ -6,23 +9,21 @@ var is = require("socket.io")(http);
 var application = express();
 var http = require("http").Server(application);
 
-const mqttUrl = "mqtt://hs.k-telecom.org:8883";
+const mqttUrl = "mqtt://m2m-dev.k-telecom.org:8883";
 const mqttOptions = {
   // Clean session
   clean: true,
   connectTimeout: 1000,
   // Authentication
   clientId: "client2",
-  username: "MQTTUser",
-  password: "MQTTpassword1!",
+  username: "m2m_msqt_mqtt_server",
+  password: "!SDH23n12$uck$0m3D1cK2281488",
 };
 
 const mqttClient = mqtt.connect(mqttUrl, mqttOptions);
 
-const prisma = new PrismaClient()
-
 mqttClient.on("connect", function () {
-  if (client.connected) {
+  if (mqttClient.connected) {
     console.log("conected");
     client.subscribe("#");  // Подпись на все топики
   } else {
@@ -35,9 +36,9 @@ mqttClient.on("message", function (topic, payload, packet) {
   console.log(`${payload.toString()}`);
   var getTopic = topic.split("/");   //  Получаем топики
 
-  var getSend = JSON.parse(payload.toString()); //  Получаем сообщение 
+  //var getSend = JSON.parse(payload.toString()); //  Получаем сообщение 
 
-  is.emit(getSend.message, {getSend: getSend, getTopic: getTopic})
+  //is.emit(getSend.message, {getSend: getSend, getTopic: getTopic})
 
   
 
@@ -45,7 +46,7 @@ mqttClient.on("message", function (topic, payload, packet) {
       Берем из базы инфоу о том , кому прниаждлежит шлюз 
   */
   // отправляем в соотвествующую  комнату    
-  is.to(login).emit("cmd", '{"payload":[ ' + JSON.stringify(getSend) + '], "topic" : [' + JSON.stringify(getTopic) + "]}");
+  //is.to(login).emit("cmd", '{"payload":[ ' + JSON.stringify(getSend) + '], "topic" : [' + JSON.stringify(getTopic) + "]}");
 });
 
 is.on("connection", function (socket) {
@@ -86,8 +87,6 @@ is.on("connection", function (socket) {
   // Создание новой станции
   socket.on("announce", function (data) {
     console.log("Создание станции: " + data);
-    
-    const newDevice = 
   });
 
 
