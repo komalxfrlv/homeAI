@@ -1,0 +1,42 @@
+{
+  "name": "m2m-b",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "prod": "prisma migrate deploy && npm run start",
+    "pm2_start_dev": "pm2 start ecosystem.config.js --env development",
+    "pm2_start_prod": "pm2 start ecosystem.config.js --env production"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/client": "^4.16.2",
+    "ajv": "^8.12.0",
+    "axios": "^1.4.0",
+    "bcrypt": "^5.1.0",
+    "dotenv": "^16.3.1",
+    "expo": "^49.0.5",
+    "expo-device": "~5.2.1",
+    "expo-notifications": "^0.8.2",
+    "expo-server-sdk": "^3.7.0",
+    "express": "^4.18.2",
+    "express-fileupload": "^1.4.0",
+    "http-errors": "^2.0.0",
+    "jsonwebtoken": "^9.0.1",
+    "md5": "^2.3.0",
+    "morgan": "^1.10.0",
+    "nodemailer": "^6.9.4",
+    "uuid": "^9.0.0",
+    "socket.io": "^2.5.0",
+    "mqtt": "^4.3.7"
+  },
+  "devDependencies": {
+    "jest": "^29.6.2",
+    "nodemon": "^3.0.1",
+    "prisma": "^4.16.2"
+  }
+}
