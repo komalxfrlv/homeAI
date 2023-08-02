@@ -33,7 +33,8 @@ mqttClient.on("connect", function () {
 
 mqttClient.on("message", function (topic, payload, packet) {
   // Payload is Buffer
-  console.log(`${payload.toString()}`);
+  console.log("received hui");
+  //console.log(`${payload.toString()}`);
   var getTopic = topic.split("/");   //  Получаем топики
 
   //var getSend = JSON.parse(payload.toString()); //  Получаем сообщение 
