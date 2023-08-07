@@ -3,7 +3,6 @@ module.exports = {
       {
         name: "m2m-node-mqtt",
         script: "./app.js",
-        instances: 4,
         max_memory_restart: "900M",
   
         // Logging
@@ -12,29 +11,6 @@ module.exports = {
         merge_logs: true,
         log_date_format: "DD-MM HH:mm:ss Z",
         log_type: "json",
-  
-        // Env Specific Config
-        env_production: {
-          NODE_ENV: "production",
-          PORT: 5002,
-          exec_mode: "cluster_mode",
-        },
-        env_development: {
-          NODE_ENV: "development",
-          PORT: 5002,
-          watch: true,
-          watch_delay: 10000,
-          ignore_watch: [
-            "./node_modules",
-            "./app/views",
-            "./public",
-            "./.DS_Store",
-            "./package.json",
-            "./yarn.lock",
-            "./samples",
-            "./src"
-          ],
-        },
       },
     ],
     deploy : {

@@ -9,15 +9,15 @@ var is = require("socket.io")(http);
 var application = express();
 var http = require("http").Server(application);
 
-const mqttUrl = "mqtt://m2m-dev.k-telecom.org:8883";
+const mqttUrl = "mqtt://hs.k-telecom.org:8883";
 const mqttOptions = {
   // Clean session
   clean: true,
   connectTimeout: 1000,
   // Authentication
-  clientId: "client2",
-  username: "m2m_msqt_mqtt_server",
-  password: "!SDH23n12$uck$0m3D1cK2281488",
+  clientId: process.env.MQTTCLIENT,
+  username: process.env.MQTTUSER,
+  password: process.env.MQTTPASSWORD,
 };
 
 const mqttClient = mqtt.connect(mqttUrl, mqttOptions);
@@ -33,15 +33,13 @@ mqttClient.on("connect", function () {
 
 mqttClient.on("message", function (topic, payload, packet) {
   // Payload is Buffer
-  console.log("received hui");
+
   //console.log(`${payload.toString()}`);
   var getTopic = topic.split("/");   //  Получаем топики
 
   //var getSend = JSON.parse(payload.toString()); //  Получаем сообщение 
 
   //is.emit(getSend.message, {getSend: getSend, getTopic: getTopic})
-
-  
 
   /* 
       Берем из базы инфоу о том , кому прниаждлежит шлюз 
