@@ -33,10 +33,10 @@ mqttClient.on("connect", function () {
 mqttClient.on("message", function (topic, payload, packet) {
   // Payload is Buffer
   var getTopic = topic.split("/");   //  Получаем топики
-  var getSend = payload.toString();
+  //var getSend = payload.toString();
 
   console.log("Topics - " + getTopic);
-  console.log("payload - " + (getSend));
+  //console.log("payload - " + (getSend));
 
   // var getSend = JSON.parse(payload.toString()); //  Получаем сообщение 
 
