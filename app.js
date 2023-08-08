@@ -1,13 +1,10 @@
-//import { PrismaClient } from '@prisma/client'
-//const prisma = new PrismaClient()
-
 const express = require('express');
 
 const mqtt = require("mqtt");
-var is = require("socket.io")(http);
+const is = require("socket.io")(http);
 
-var application = express();
-var http = require("http").Server(application);
+const application = express();
+const http = require("http").Server(application);
 
 //const { db } = require('./src/db');
 
@@ -21,8 +18,6 @@ const mqttOptions = {
   username: "MQTTUser",
   password: "MQTTpassword1!",
 };
-
-
 
 const mqttClient = mqtt.connect(mqttUrl, mqttOptions);
 
@@ -42,8 +37,6 @@ mqttClient.on("message", function (topic, payload, packet) {
 
   console.log("Topics - " + getTopic);
   console.log("payload - " + (getSend));
-
-
 
   // var getSend = JSON.parse(payload.toString()); //  Получаем сообщение 
 
