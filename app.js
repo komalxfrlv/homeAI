@@ -9,7 +9,7 @@ var is = require("socket.io")(http);
 var application = express();
 var http = require("http").Server(application);
 
-const { db } = require('./src/db');
+//const { db } = require('./src/db');
 
 const mqttUrl = "mqtt://hs.k-telecom.org:8883";
 const mqttOptions = {
