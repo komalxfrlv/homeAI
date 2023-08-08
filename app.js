@@ -101,7 +101,7 @@ is.on("connection", function (socket) {
     console.log("OUT_USER: " + ID);
   });
 
-  socket.on("broker", function () {         //  Все сообщения к брокеру отправлять в это простарнство имен 
+  socket.on("broker", function (data) {         //  Все сообщения к брокеру отправлять в это простарнство имен 
                                            //
     let userId = data.userId;             //
     let gatewayId = data.gatewayId;      //  Формиурем топик 
