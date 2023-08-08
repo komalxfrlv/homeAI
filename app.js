@@ -3,9 +3,8 @@ const application = express();
 
 const mqtt = require("mqtt");
 
-let is = require("socket.io")(http);
-
-let http = require("http").Server(application);
+const http = require("http").Server(application);
+const is = require("socket.io")(http);
 
 //const { db } = require('./src/db');
 
