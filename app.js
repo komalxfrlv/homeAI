@@ -1,10 +1,11 @@
 const express = require('express');
+const application = express();
 
 const mqtt = require("mqtt");
-const is = require("socket.io")(http);
 
-const application = express();
-const http = require("http").Server(application);
+let is = require("socket.io")(http);
+
+let http = require("http").Server(application);
 
 //const { db } = require('./src/db');
 
