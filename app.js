@@ -107,7 +107,7 @@ is.on("connection", function (socket) {
     let gatewayId = ""+data.gatewayId;      //  Формиурем топик 
     let device = ""+data.device;           //
                                        //
-    let message = data.message;       //  Основной json , который собирается в фронте и отправляется к брокеру 
+    let message = ""+data.message;       //  Основной json , который собирается в фронте и отправляется к брокеру 
     console.log("{ onBroker: " + userId + "/" + gatewayId + "/" + device + "\n" + "message: " + message + " }");
     mqttClient.publish(userId + "/" + gatewayId + "/" + device, message); // Отправлем комманду на шлюз с айди устройством 
   });
