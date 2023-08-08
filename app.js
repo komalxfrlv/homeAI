@@ -103,9 +103,9 @@ is.on("connection", function (socket) {
 
   socket.on("broker", function (data) {         //  Все сообщения к брокеру отправлять в это простарнство имен 
                                            //
-    let userId = data.userId.toString();             //
-    let gatewayId = data.gatewayId.toString();      //  Формиурем топик 
-    let device = data.device.toString();           //
+    let userId = ""+data.userId;             //
+    let gatewayId = ""+data.gatewayId;      //  Формиурем топик 
+    let device = ""+data.device;           //
                                        //
     let message = data.message;       //  Основной json , который собирается в фронте и отправляется к брокеру 
     console.log("{ onBroker: " + userId + "/" + gatewayId + "/" + device + "\n" + "message: " + message + " }");
