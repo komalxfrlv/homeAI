@@ -22,6 +22,18 @@ const mqttOptions = {
 
 const mqttClient = mqtt.connect(mqttUrl, mqttOptions);
 
+
+mqttClient.on("connect", function () {
+  if (mqttClient.connected) {
+    console.log("conected");
+    mqttClient.subscribe("#");  // Подпись на все топики
+  } else {
+    console.log("disconeted");
+  }
+
+
+
+
 is.on("connection", function (socket) {
   var ID = socket.id.toString().substr(0, 5);
   console.log("connect_USER: " + ID);
@@ -86,15 +98,7 @@ is.on("connection", function (socket) {
     mqttClient.publish(userId + "/" + gatewayId + "/" + device, message); // Отправлем комманду на шлюз с айди устройством 
   });
 
-});
-
-mqttClient.on("connect", function () {
-  if (mqttClient.connected) {
-    console.log("conected");
-    mqttClient.subscribe("#");  // Подпись на все топики
-  } else {
-    console.log("disconeted");
-  }
+  });
 });
 
 mqttClient.on("message", function (topic, payload, packet) {
