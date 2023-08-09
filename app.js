@@ -69,7 +69,7 @@ is.on("connection", function (socket) {
 });
 
 ioClient.on('saveToDb', function (data) {
-  console.log('SAVE TO DB:', data);
+  console.log('pizdata:', data);
 });
 
 
@@ -85,7 +85,7 @@ mqttClient.on("message", function (topic, payload, packet) {
     let obj = JSON.parse(payload.toString())
 
     if (obj.modeTelecom) {
-      is.emit("saveToDb", obj['data']);
+      is.emit(obj.modeTelecom, obj['data']);
       console.log("gavnormal = " + obj['modeTelecom']);
     }
   } catch (e) {
