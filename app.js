@@ -43,7 +43,7 @@ mqttClient.on("message", function (topic, payload, packet) {
     let obj = JSON.parse(payload.toString())
 
     if (obj.modeTelecom) {
-      is.emit("saveToDb", '{"payload": "1488"}');
+      is.emit("saveToDb", '{"payload":[ ' + payload.toString() + '], "topic" : [' + JSON.stringify(getTopic) + "]}");
       console.log("gavnormal = " + obj['modeTelecom']);
     }
   } catch (e) {
@@ -55,7 +55,7 @@ mqttClient.on("message", function (topic, payload, packet) {
       Берем из базы инфоу о том , кому прниаждлежит шлюз 
   */
   // отправляем в соотвествующую  комнату    
- // is.to(getTopic[0]).emit("cmd", '{"payload":[ ' + payload.toString() + '], "topic" : [' + JSON.stringify(getTopic) + "]}");
+  is.to(getTopic[0]).emit("cmd", '{"payload":[ ' + payload.toString() + '], "topic" : [' + JSON.stringify(getTopic) + "]}");
 
 });
 
@@ -65,20 +65,13 @@ is.on("connection", function (socket) {
 
   socket.on("saveToDb", function (data) {
     console.log("pizdata: " + data);
-
-    var writeStream = fs.createWriteStream("JournalDEV.txt");
-    writeStream.write("Hi, JournalDEV Users. ");
-    writeStream.write("Thank You.");
-    writeStream.write(data);
-    writeStream.end();
-
   });
 
   // auth для захода в сокет комнату по какому то типу данных (В данном случае по логину)
 
   socket.on("auth", function (data) {
     let room = data.room; // Под вопросом 
-   // socket.join(room); // входим сокетами в комнату юзвера 
+    socket.join(room); // входим сокетами в комнату юзвера 
     console.log("get + device " + data.gatewayId); // have - это id шлюза , который принадлежит юзверу  
     mqttClient.publish(room + "/" + data.gatewayId + "/bridge/config/devices/get", ""); // Получаем данные шлюза
   });
