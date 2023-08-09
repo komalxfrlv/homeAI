@@ -68,13 +68,26 @@ is.on("connection", function (socket) {
   });
 });
 
-ioClient.on('saveToDb', function (data, topic) {
+ioClient.on('saveToDb', async function (data, topic) {
   let userId = topic[0];
-  let stationId = topic[1];
-  let sensorId = topic[2];
-  
+  let gatewayId = topic[1];
+  let elementId = topic[2];
+
   console.log('pizdata:', data);
-  console.log('/' + userId + '/' + stationId + '/' + sensorId);
+  console.log('/' + userId + '/' + gatewayId + '/' + elementId);
+
+  /*
+  let sensor = await db.sensor.findUnique({
+    where: {
+      elementId: elementId
+    }
+  });
+
+
+  let data = await db.data.create({
+    data: data
+  });
+  */
 });
 
 
@@ -97,7 +110,7 @@ mqttClient.on("message", function (topic, payload, packet) {
     //console.log('oshibka: Error parsing')
   }
 
-  is.to(getTopic[0]).emit("cmd",'{"payload":[ ' + payload.toString +'], "topic" : [' + getTopic + "]}");
+  is.to(getTopic[0]).emit("cmd", '{"payload":[ ' + payload.toString + '], "topic" : [' + getTopic + "]}");
 });
 
 
