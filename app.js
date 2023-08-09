@@ -68,8 +68,13 @@ is.on("connection", function (socket) {
   });
 });
 
-ioClient.on('saveToDb', function (data) {
+ioClient.on('saveToDb', function (data, topic) {
+  let userId = topic[0];
+  let stationId = topic[1];
+  let sensorId = topic[2];
+  
   console.log('pizdata:', data);
+  console.log('/' + userId + '/' + stationId + '/' + sensorId);
 });
 
 
@@ -85,7 +90,7 @@ mqttClient.on("message", function (topic, payload, packet) {
     let obj = JSON.parse(payload.toString())
 
     if (obj['modeTelecom']) {
-      is.emit(obj['modeTelecom'], obj['data']);
+      is.emit(obj['modeTelecom'], obj['data'], getTopic);
       console.log("gavnormal = " + obj['modeTelecom']);
     }
   } catch (e) {
