@@ -1,5 +1,6 @@
 const express = require('express');
 const application = express();
+var fs = require("fs");
 
 const mqtt = require("mqtt");
 
@@ -34,14 +35,22 @@ mqttClient.on("message", function (topic, payload, packet) {
   // Payload is Buffer
   var getTopic = topic.split("/");   //  Получаем топики
   //var getSend = payload.toString();
-
+  console.log("getTopic = " + payload.toString());
   // var getSend = JSON.parse(payload.toString()); //  Получаем сообщение 
 
   // is.emit(getSend.message, {getSend: getSend, getTopic: getTopic})
-  if (payload.modeTelecom) {
-    is.emit(payload.modeTelecom, payload.data);
-    console.log("gavnormal");
+  try {
+    let obj = JSON.parse(payload.toString())
+
+    if (obj.modeTelecom) {
+      is.emit('saveToDb', { data: "XYI" });
+      console.log("gavnormal = " + obj['modeTelecom']);
+    }
+  } catch (e) {
+    console.log('oshibka: Error parsing')
   }
+  console.log();
+
   /* 
       Берем из базы инфоу о том , кому прниаждлежит шлюз 
   */
@@ -56,6 +65,13 @@ is.on("connection", function (socket) {
 
   socket.on("saveToDb", function (data) {
     console.log("pizdata: " + data);
+
+    var writeStream = fs.createWriteStream("JournalDEV.txt");
+    writeStream.write("Hi, JournalDEV Users. ");
+    writeStream.write("Thank You.");
+    writeStream.write(data);
+    writeStream.end();
+
   });
 
   // auth для захода в сокет комнату по какому то типу данных (В данном случае по логину)
@@ -97,10 +113,10 @@ is.on("connection", function (socket) {
   });
 
   socket.on("broker", function (data) {         //  Все сообщения к брокеру отправлять в это простарнство имен 
-    let userId = ""+data.userId;             //
-    let gatewayId = ""+data.gatewayId;      //  Формиурем топик 
-    let device = ""+data.device;           //
-    let message = ""+data.message;       //  Основной json , который собирается в фронте и отправляется к брокеру 
+    let userId = "" + data.userId;             //
+    let gatewayId = "" + data.gatewayId;      //  Формиурем топик 
+    let device = "" + data.device;           //
+    let message = "" + data.message;       //  Основной json , который собирается в фронте и отправляется к брокеру 
 
     console.log("{ onBroker: " + userId + "/" + gatewayId + "/" + device + "\n" + "message: " + message + " }");
 
