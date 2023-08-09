@@ -43,7 +43,7 @@ mqttClient.on("message", function (topic, payload, packet) {
       Берем из базы инфоу о том , кому прниаждлежит шлюз 
   */
   // отправляем в соотвествующую  комнату    
-  is.to(getTopic[0]).emit("cmd", '{"payload":[ ' + JSON.stringify(getSend) + '], "topic" : [' + JSON.stringify(getTopic) + "]}");
+  is.to(getTopic[0]).emit("cmd", '{"payload":[ ' + payload.toString() + '], "topic" : [' + JSON.stringify(getTopic) + "]}");
 
 });
 
@@ -56,8 +56,8 @@ is.on("connection", function (socket) {
   socket.on("auth", function (data) {
     let room = data.room; // Под вопросом 
     socket.join(room); // входим сокетами в комнату юзвера 
-    console.log("get + device " + have); // have - это id шлюза , который принадлежит юзверу  
-    mqttClient.publish(room + "/" + have + "/bridge/config/devices/get", ""); // Получаем данные шлюза
+    console.log("get + device " + data.gatewayId); // have - это id шлюза , который принадлежит юзверу  
+    mqttClient.publish(room + "/" + data.gatewayId + "/bridge/config/devices/get", ""); // Получаем данные шлюза
   });
 
   socket.on("permit_join", function (data) {
@@ -96,7 +96,7 @@ is.on("connection", function (socket) {
     let message = ""+data.message;       //  Основной json , который собирается в фронте и отправляется к брокеру 
 
     console.log("{ onBroker: " + userId + "/" + gatewayId + "/" + device + "\n" + "message: " + message + " }");
-    
+
     mqttClient.publish(userId + "/" + gatewayId + "/" + device, message); // Отправлем комманду на шлюз с айди устройством 
   });
 
