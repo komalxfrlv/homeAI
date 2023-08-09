@@ -84,8 +84,8 @@ mqttClient.on("message", function (topic, payload, packet) {
   try {
     let obj = JSON.parse(payload.toString())
 
-    if (obj.modeTelecom) {
-      is.emit(obj.modeTelecom, obj['data']);
+    if (obj['modeTelecom']) {
+      is.emit(obj['modeTelecom'], obj['data']);
       console.log("gavnormal = " + obj['modeTelecom']);
     }
   } catch (e) {
