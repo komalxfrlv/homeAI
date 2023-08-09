@@ -38,7 +38,10 @@ mqttClient.on("message", function (topic, payload, packet) {
   // var getSend = JSON.parse(payload.toString()); //  Получаем сообщение 
 
   // is.emit(getSend.message, {getSend: getSend, getTopic: getTopic})
-
+  if (payload.modeTelecom) {
+    is.emit(payload.modeTelecom, payload.data);
+    console.log("gavnormal");
+  }
   /* 
       Берем из базы инфоу о том , кому прниаждлежит шлюз 
   */
@@ -50,6 +53,10 @@ mqttClient.on("message", function (topic, payload, packet) {
 is.on("connection", function (socket) {
   var ID = socket.id.toString().substr(0, 5);
   console.log("connect_USER: " + ID);
+
+  socket.on("saveToDb", function (data) {
+    console.log("pizdata: " + data);
+  });
 
   // auth для захода в сокет комнату по какому то типу данных (В данном случае по логину)
 
