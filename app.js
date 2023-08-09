@@ -22,7 +22,6 @@ const mqttOptions = {
 
 const mqttClient = mqtt.connect(mqttUrl, mqttOptions);
 
-
 mqttClient.on("connect", function () {
   if (mqttClient.connected) {
     console.log("conected");
@@ -30,9 +29,35 @@ mqttClient.on("connect", function () {
   } else {
     console.log("disconeted");
   }
+});
 
+mqttClient.on("message", function (topic, payload, packet) {
+  // Payload is Buffer
+  var getTopic = topic.split("/");   //  Получаем топики
+  //var getSend = payload.toString();
+  console.log("getTopic = " + payload.toString());
+  // var getSend = JSON.parse(payload.toString()); //  Получаем сообщение 
 
+  // is.emit(getSend.message, {getSend: getSend, getTopic: getTopic})
+  try {
+    let obj = JSON.parse(payload.toString())
 
+    if (obj.modeTelecom) {
+      is.emit("saveToDb", '{"payload": "1488"}');
+      console.log("gavnormal = " + obj['modeTelecom']);
+    }
+  } catch (e) {
+    console.log('oshibka: Error parsing')
+  }
+  console.log();
+
+  /* 
+      Берем из базы инфоу о том , кому прниаждлежит шлюз 
+  */
+  // отправляем в соотвествующую  комнату    
+  is.to(getTopic[0]).emit("cmd", '{"payload":[ ' + payload.toString() + '], "topic" : [' + JSON.stringify(getTopic) + "]}");
+
+});
 
 is.on("connection", function (socket) {
   var ID = socket.id.toString().substr(0, 5);
@@ -98,38 +123,8 @@ is.on("connection", function (socket) {
     mqttClient.publish(userId + "/" + gatewayId + "/" + device, message); // Отправлем комманду на шлюз с айди устройством 
   });
 
-  });
-});
-
-mqttClient.on("message", function (topic, payload, packet) {
-  // Payload is Buffer
-  var getTopic = topic.split("/");   //  Получаем топики
-  //var getSend = payload.toString();
-  console.log("getTopic = " + payload.toString());
-  // var getSend = JSON.parse(payload.toString()); //  Получаем сообщение 
-
-  // is.emit(getSend.message, {getSend: getSend, getTopic: getTopic})
-  try {
-    let obj = JSON.parse(payload.toString())
-
-    if (obj.modeTelecom) {
-      is.emit('saveToDb', { data: "XYI" });
-      console.log("gavnormal = " + obj['modeTelecom']);
-    }
-  } catch (e) {
-    console.log('oshibka: Error parsing')
-  }
-  console.log();
-
-  /* 
-      Берем из базы инфоу о том , кому прниаждлежит шлюз 
-  */
-  // отправляем в соотвествующую  комнату    
-  is.to(getTopic[0]).emit("cmd", '{"payload":[ ' + payload.toString() + '], "topic" : [' + JSON.stringify(getTopic) + "]}");
-
 });
 
 http.listen(5002, function () {
   console.log("Клиентский канал запущен, порт: " + 5002);
 });
-
