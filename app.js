@@ -55,7 +55,7 @@ mqttClient.on("message", function (topic, payload, packet) {
       Берем из базы инфоу о том , кому прниаждлежит шлюз 
   */
   // отправляем в соотвествующую  комнату    
-  is.to(getTopic[0]).emit("cmd", '{"payload":[ ' + payload.toString() + '], "topic" : [' + JSON.stringify(getTopic) + "]}");
+ // is.to(getTopic[0]).emit("cmd", '{"payload":[ ' + payload.toString() + '], "topic" : [' + JSON.stringify(getTopic) + "]}");
 
 });
 
@@ -78,7 +78,7 @@ is.on("connection", function (socket) {
 
   socket.on("auth", function (data) {
     let room = data.room; // Под вопросом 
-    socket.join(room); // входим сокетами в комнату юзвера 
+   // socket.join(room); // входим сокетами в комнату юзвера 
     console.log("get + device " + data.gatewayId); // have - это id шлюза , который принадлежит юзверу  
     mqttClient.publish(room + "/" + data.gatewayId + "/bridge/config/devices/get", ""); // Получаем данные шлюза
   });
