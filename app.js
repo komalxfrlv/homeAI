@@ -76,18 +76,23 @@ ioClient.on('saveToDb', async function (data, topic) {
   console.log('pizdata:', data);
   console.log('/' + userId + '/' + gatewayId + '/' + elementId);
 
-  /*
   let sensor = await db.sensor.findUnique({
     where: {
       elementId: elementId
     }
   });
 
+  console.log('sensor:' + sensor);
 
   let data = await db.data.create({
-    data: data
+    data: {
+      value: data,
+      sensorId: sensor.id,
+    }
   });
-  */
+
+  console.log('data: ' + data);
+  
 });
 
 
