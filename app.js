@@ -84,14 +84,14 @@ ioClient.on('saveToDb', async function (data, topic) {
 
   console.log('sensor:' + sensor);
 
-  let data = await db.data.create({
+  let newData = await db.data.create({
     data: {
       value: data,
       sensorId: sensor.id,
     }
   });
 
-  console.log('data: ' + data);
+  console.log('data: ' + newData);
   
 });
 
