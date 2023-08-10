@@ -76,7 +76,7 @@ ioClient.on('saveToDb', async function (data, topic) {
   console.log('pizdata:', data);
   console.log('/' + userId + '/' + gatewayId + '/' + elementId);
 
-  let sensor = await db.sensor.findUnique({
+  let sensor = await db.sensor.findFirst({
     where: {
       elementId: elementId
     }
