@@ -72,6 +72,8 @@ ioClient.on('saveToDb', async function (data, topic) {
   let userId = topic[0];
   let gatewayId = topic[1];
   let elementId = topic[2];
+  
+  delete data.modeTelecom;
 
   console.log('pizdata:', data);
   console.log('/' + userId + '/' + gatewayId + '/' + elementId);
