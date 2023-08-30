@@ -120,7 +120,7 @@ mqttClient.on("message", function (topic, payload, packet) {
     }
     else {
       if (getTopic.length == 3) {
-        is.emit('saveToDb', obj['data'], getTopic)
+        is.emit('saveToDb', obj, getTopic)
         console.log("saving zigbee data")
       }
     }
@@ -129,7 +129,7 @@ mqttClient.on("message", function (topic, payload, packet) {
     //console.log('oshibka: Error parsing')
   }
   //console.log("gavnormal");
-  is.to(getTopic[0]).emit("cmd", '{"payload":[ ' + payload.toString + '], "topic" : [' + getTopic + "]}");
+  is.to(getTopic[0]).emit("cmd", '{"payload": ' + payload.toString() + ', "topic" : { "gatewayId": "' + getTopic[1] + '","sensorId" :"' + getTopic[2]+'"}}');
 });
 
 
