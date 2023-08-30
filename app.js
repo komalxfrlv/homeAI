@@ -89,7 +89,6 @@ ioClient.on('saveToDb', async function (data, topic) {
       data: {
         value: data,
         sensorId: sensor.id,
-        sensor:sensor,
       }
     });
 
