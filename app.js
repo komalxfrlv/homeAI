@@ -75,6 +75,7 @@ ioClient.on('saveToDb', async function (data, topic) {
 
   console.log('pizdata:', data);
   console.log('/' + userId + '/' + gatewayId + '/' + elementId);
+try{
 
   let sensor = await db.sensor.findFirst({
     where: {
@@ -92,6 +93,10 @@ ioClient.on('saveToDb', async function (data, topic) {
   });
 
   console.log('data: ' + newData);
+}
+catch(err){
+  console.log(err)
+}
   
 });
 
@@ -100,7 +105,7 @@ mqttClient.on("message", function (topic, payload, packet) {
   // Payload is Buffer
   var getTopic = topic.split("/");   //  Получаем топики
   var getSend = payload.toString();
-  //console.log("getTopic = " + payload.toString());
+  //console.log("getTopic = " + getTopic);
   // var getSend = JSON.parse(payload.toString()); //  Получаем сообщение 
 
   // is.emit(getSend.message, {getSend: getSend, getTopic: getTopic})
@@ -110,6 +115,12 @@ mqttClient.on("message", function (topic, payload, packet) {
     if (obj['modeTelecom']) {
       is.emit(obj['modeTelecom'], obj['data'], getTopic);
       console.log("gavnormal = " + obj['modeTelecom']);
+    }
+    else{
+      if(getTopic.length == 3){
+        is.emit('saveToDb', obj['data'], getTopic)
+        console.log("saving zigbee data")
+      }
     }
   } catch (e) {
     //console.log('oshibka: Error parsing')
