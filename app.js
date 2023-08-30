@@ -75,29 +75,29 @@ ioClient.on('saveToDb', async function (data, topic) {
 
   console.log('pizdata:', data);
   console.log('/' + userId + '/' + gatewayId + '/' + elementId);
-try{
+  try {
 
-  let sensor = await db.sensor.findFirst({
-    where: {
-      elementId: elementId
-    }
-  });
+    let sensor = await db.sensor.findFirst({
+      where: {
+        elementId: elementId
+      }
+    });
 
-  console.log('sensor:' + sensor);
+    console.log('sensor:' + sensor);
 
-  let newData = await db.data.create({
-    data: {
-      value: data,
-      sensorId: sensor.id,
-    }
-  });
+    let newData = await db.data.create({
+      data: {
+        value: data,
+        sensorId: sensor.id,
+      }
+    });
 
-  console.log('data: ' + newData);
-}
-catch(err){
-  console.log(err)
-}
-  
+    console.log('data: ' + newData);
+  }
+  catch (err) {
+    console.log(err)
+  }
+
 });
 
 
@@ -113,15 +113,16 @@ mqttClient.on("message", function (topic, payload, packet) {
     let obj = JSON.parse(payload.toString())
 
     if (obj['modeTelecom']) {
-      is.emit(obj['modeTelecom'], obj['data'], getTopic);
+      is.emit(obj['modeTelecom'], obj, getTopic);
       console.log("gavnormal = " + obj['modeTelecom']);
     }
-    else{
-      if(getTopic.length == 3){
+    else {
+      if (getTopic.length == 3) {
         is.emit('saveToDb', obj['data'], getTopic)
         console.log("saving zigbee data")
       }
     }
+
   } catch (e) {
     //console.log('oshibka: Error parsing')
   }
