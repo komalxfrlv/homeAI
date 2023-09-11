@@ -129,7 +129,7 @@ mqttClient.on("message", function (topic, payload, packet) {
     //console.log('oshibka: Error parsing')
   }
   //console.log("gavnormal");
-  is.to(getTopic[0]).emit("cmd", '{"payload": ' + payload.toString() + ', "topic" : { "gatewayId": "' + getTopic[1] + '","sensorId" :"' + getTopic[2]+'"}}');
+  is.to(getTopic[0]).emit("cmd", '{"payload": ' + payload.toString() + ', "topic" : { "gatewayId": "' + getTopic[1] + '","sensorId" :"' + elementID[2]+'"}}');
 });
 
 
