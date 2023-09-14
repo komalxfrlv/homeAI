@@ -10,6 +10,25 @@ const ioClient = io.connect('http://localhost:5002')
 
 const { db } = require('./src/db');
 
+const cors = require('cors');
+
+const corsOptions = {
+    origin: '*',
+    credentials: true,
+    optionSuccessStatus: 200
+}
+
+app.use(cors(corsOptions));
+
+app.use(function (req, res, next) {
+    res.header('Access-Control-Allow-Origin', "*");
+    res.header('Access-Control-Allow-Headers', true);
+    res.header('Access-Control-Allow-Credentials', true);
+    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    next();
+});
+
+
 const mqttUrl = "mqtt://hs.k-telecom.org:8883";
 const mqttOptions = {
   // Clean session
