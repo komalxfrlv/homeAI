@@ -18,9 +18,9 @@ const corsOptions = {
     optionSuccessStatus: 200
 }
 
-app.use(cors(corsOptions));
+application.use(cors(corsOptions));
 
-app.use(function (req, res, next) {
+application.use(function (req, res, next) {
     res.header('Access-Control-Allow-Origin', "*");
     res.header('Access-Control-Allow-Headers', true);
     res.header('Access-Control-Allow-Credentials', true);
