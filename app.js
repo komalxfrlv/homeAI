@@ -68,7 +68,8 @@ is.on("connection", function (socket) {
 
     socket.join(room);
     socket.to(room).emit("cmd" , `{'action' : 'auth'}`)
-   // mqttClient.publish(room + "/" + data.gatewayId + "/get", "{'command' : 'getTime'}");
+    console.log("start room " + data.room);
+    // mqttClient.publish(room + "/" + data.gatewayId + "/get", "{'command' : 'getTime'}");
   });
 
   socket.on("disconnect", function () {
