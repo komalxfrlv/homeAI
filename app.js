@@ -68,7 +68,7 @@ is.on("connection", function (socket) {
 
     socket.join(room);
 
-    mqttClient.publish(room + "/" + data.gatewayId + "/bridge/config/devices/get", "");
+    mqttClient.publish(room + "/" + data.gatewayId + "/get", "{'command' : 'getTime'}");
   });
 
   socket.on("disconnect", function () {
