@@ -76,7 +76,7 @@ is.on("connection", function (socket) {
     console.log("OUT_USER: " + ID);
   });
 
-  socket.on("broker", function (data) {         //  Все сообщения к брокеру отправлять в это простарнство имен 
+  socket.on("broker", function (data , retain) {         //  Все сообщения к брокеру отправлять в это простарнство имен 
     let userId = "" + data.userId;             //
     let gatewayId = "" + data.gatewayId;      //  Формиурем топик 
     let device = "" + data.device;           //
@@ -84,7 +84,7 @@ is.on("connection", function (socket) {
 
     //console.log("{ onBroker: " + userId + "/" + gatewayId + "/" + device + "\n" + "message: " + message + " }");
 
-    mqttClient.publish(userId + "/" + gatewayId + "/" + device, message); // Отправлем комманду на шлюз с айди устройством 
+    mqttClient.publish(userId + "/" + gatewayId + "/" + device, message , {retain : retain}); // Отправлем комманду на шлюз с айди устройством 
   });
 });
 
