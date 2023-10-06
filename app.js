@@ -134,14 +134,14 @@ mqttClient.on("message", function (topic, payload, packet) {
   try {
     let obj = JSON.parse(payload.toString())
 
-    if (obj['modeTelecom']) {
-      is.emit(obj['modeTelecom'], obj, getTopic);
-      console.log("gavnormal = " + obj['modeTelecom']);
+    if (obj['mT']) {
+      is.emit(obj['mT'], obj, getTopic);
+      //console.log("gavnormal = " + obj['modeTelecom']);
     }
     else {
       if (getTopic.length == 3) {
         is.emit('saveToDb', obj, getTopic)
-        console.log("saving zigbee data")
+        //console.log("saving zigbee data")
       }
     }
 
