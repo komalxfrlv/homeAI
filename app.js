@@ -35,9 +35,9 @@ const mqttOptions = {
   clean: true,
   connectTimeout: 1000,
   // Authentication
-  clientId: "serv",
-  username: "MQTTUser",
-  password: "MQTTpassword1!",
+  clientId: process.env.MQTT_CLIENT_ID,
+  username: process.env.MQTT_USERNAME,
+  password: process.env.MQTT_PASSWORD,
 };
 
 const mqttClient = mqtt.connect(mqttUrl, mqttOptions);
@@ -94,7 +94,9 @@ ioClient.on('saveToDb', async function (data, topic) {
   let elementId = topic[2];
   
   delete data.modeTelecom;
- 
+
+  data.linkquality? data.linkquality = Math.round((data.linkquality/255)*100) :""
+
   console.log('pizdata:', data);
   console.log('/' + userId + '/' + gatewayId + '/' + elementId);
   try {
