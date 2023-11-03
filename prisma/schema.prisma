@@ -40,6 +40,7 @@ model User {
   cityId         String
   contracts      Contract[]
   EventLog       EventLog[]
+  Icon           Icon[]
   metrics        Metric[]
   refreshTokens  RefreshToken[]
   Rooms          Rooms[]
@@ -68,14 +69,20 @@ model Contract {
 }
 
 model DeviceType {
-  id                   String                 @id @unique @default(uuid())
-  name                 String                 @db.VarChar(255)
-  code                 String?                @unique
-  DefaultScripts       DefaultScripts[]
-  DeviceAtDeviceGroups DeviceAtDeviceGroups[]
-  sensors              Sensor[]
-  stations             Station[]
-  versions             Version[]
+  id                          String                        @id @unique @default(uuid())
+  name                        String                        @db.VarChar(255)
+  code                        String?                       @unique
+  iconId                      String?
+  category                    deviceCategory?
+  frontView                   Json?
+  commands                    Json?
+  majorFields                 String[]
+  Icon                        Icon?                         @relation(fields: [iconId], references: [id])
+  DeviceTypesAtDefaultScripts DeviceTypesAtDefaultScripts[]
+  DeviceTypesAtGroup          DeviceTypesAtGroup[]
+  sensors                     Sensor[]
+  stations                    Station[]
+  versions                    Version[]
 }
 
 model Version {
@@ -98,13 +105,11 @@ model Station {
   deviceId   String
   contractId String?
   userId     String
-  roomsId    String?
   EventLog   EventLog[]
   sensors    Sensor[]
   shelldues  ShellduesOnStations[]
   contract   Contract?             @relation(fields: [contractId], references: [id])
   device     DeviceType            @relation(fields: [deviceId], references: [id])
-  Rooms      Rooms?                @relation(fields: [roomsId], references: [id], onDelete: Cascade)
   user       User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   settings   StationSettings?
 }
@@ -116,7 +121,9 @@ model StationSettings {
   stationId String  @unique
   versionId String
   cityId    String?
+  roomsId   String?
   City      City?   @relation(fields: [cityId], references: [id])
+  Rooms     Rooms?  @relation(fields: [roomsId], references: [id], onDelete: Cascade)
   station   Station @relation(fields: [stationId], references: [id], onDelete: Cascade)
   version   Version @relation(fields: [versionId], references: [id])
 }
@@ -129,11 +136,9 @@ model Sensor {
   uptime    BigInt?
   deviceId  String
   stationId String
-  roomsId   String?
   data      Data[]
   EventLog  EventLog[]
   device    DeviceType      @relation(fields: [deviceId], references: [id])
-  Rooms     Rooms?          @relation(fields: [roomsId], references: [id], onDelete: Cascade)
   station   Station         @relation(fields: [stationId], references: [id], onDelete: Cascade)
   settings  SensorSettings?
 }
@@ -152,18 +157,23 @@ model SensorSettings {
   pushEnd    DateTime? @db.Time(6)
   sensorId   String    @unique
   versionId  String
+  roomsId    String?
+  iconId     String?
+  Icon       Icon?     @relation(fields: [iconId], references: [id])
+  Rooms      Rooms?    @relation(fields: [roomsId], references: [id], onDelete: Cascade)
   sensor     Sensor    @relation(fields: [sensorId], references: [id], onDelete: Cascade)
   version    Version   @relation(fields: [versionId], references: [id])
 }
 
 model Data {
-  id        String     @id @unique @default(uuid())
-  value     Json
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @default(now())
-  sensorId  String
-  sensor    Sensor     @relation(fields: [sensorId], references: [id], onDelete: Cascade)
-  EventLog  EventLog[]
+  id            String     @id @unique @default(uuid())
+  value         Json
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @default(now())
+  sensorId      String
+  createdAtDate DateTime   @default(now()) @db.Date
+  sensor        Sensor     @relation(fields: [sensorId], references: [id], onDelete: Cascade)
+  EventLog      EventLog[]
 }
 
 model Activity {
@@ -197,15 +207,26 @@ model UserToUserGroups {
 }
 
 model Shelldue {
-  id             String                @id @unique @default(uuid())
-  active         Boolean
-  name           String
-  hash           String?
-  shelldueScript Json
-  deviceTypes    String[]
-  userId         String
-  user           User                  @relation(fields: [userId], references: [id])
-  stations       ShellduesOnStations[]
+  id                 String                @id @unique @default(uuid())
+  active             Boolean
+  name               String
+  hash               String?
+  shelldueScript     Json
+  deviceTypes        String[]
+  userId             String
+  executing          Boolean               @default(false)
+  shelldueType       ShelldueType          @default(condition)
+  runtimeEnd         DateTime?             @db.Time(6)
+  runtimeStart       DateTime?             @db.Time(6)
+  success            Boolean[]
+  lastSuccess        Boolean[]
+  duration           BigInt?
+  stage              Int                   @default(0)
+  activeDays         Int[]
+  EventLog           EventLog[]
+  user               User                  @relation(fields: [userId], references: [id])
+  ShellduesChainLink ShellduesChainLink[]
+  stations           ShellduesOnStations[]
 }
 
 model ShellduesOnStations {
@@ -217,20 +238,10 @@ model ShellduesOnStations {
 }
 
 model DefaultScripts {
-  id          String     @id @unique
-  deviceId    String
-  script      Json
-  description String?
-  DeviceType  DeviceType @relation(fields: [deviceId], references: [id])
-}
-
-model DeviceAtDeviceGroups {
-  deviceGroupsId String
-  deviceId       String
-  deviceGroups   deviceGroups @relation(fields: [deviceGroupsId], references: [id], onDelete: Cascade)
-  DeviceType     DeviceType   @relation(fields: [deviceId], references: [id])
-
-  @@id([deviceGroupsId, deviceId])
+  id                          String                        @id @unique
+  script                      Json
+  description                 String?
+  DeviceTypesAtDefaultScripts DeviceTypesAtDefaultScripts[]
 }
 
 model EventCode {
@@ -241,17 +252,21 @@ model EventCode {
 }
 
 model EventLog {
-  id        String    @id @unique
-  userId    String
-  sensorId  String?
-  stationId String?
-  dataId    String?
-  codeId    String
-  EventCode EventCode @relation(fields: [codeId], references: [id], onDelete: Cascade)
-  Data      Data?     @relation(fields: [dataId], references: [id], onDelete: Cascade)
-  Sensor    Sensor?   @relation(fields: [sensorId], references: [id], onDelete: Cascade)
-  Station   Station?  @relation(fields: [stationId], references: [id], onDelete: Cascade)
-  User      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id         String    @id @unique
+  userId     String
+  sensorId   String?
+  stationId  String?
+  dataId     String?
+  codeId     String
+  shelldueId String?
+  createdAt  DateTime  @default(now())
+  message    String?   @db.VarChar(4096)
+  EventCode  EventCode @relation(fields: [codeId], references: [id], onDelete: Cascade)
+  Data       Data?     @relation(fields: [dataId], references: [id], onDelete: Cascade)
+  Sensor     Sensor?   @relation(fields: [sensorId], references: [id], onDelete: Cascade)
+  Shelldue   Shelldue? @relation(fields: [shelldueId], references: [id], onDelete: Cascade)
+  Station    Station?  @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  User       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model PushMessage {
@@ -263,20 +278,59 @@ model PushMessage {
 }
 
 model Rooms {
-  id        String    @id @unique
-  name      String    @db.VarChar(255)
-  userId    String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime
-  User      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  Sensor    Sensor[]
-  Station   Station[]
+  id              String            @id @unique
+  name            String            @db.VarChar(255)
+  userId          String
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime
+  User            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  SensorSettings  SensorSettings[]
+  StationSettings StationSettings[]
 }
 
-model deviceGroups {
-  id                   String                 @id @unique
-  name                 String
-  DeviceAtDeviceGroups DeviceAtDeviceGroups[]
+model DeviceGroup {
+  id                 String               @id @unique
+  name               String
+  iconId             String?
+  Icon               Icon?                @relation(fields: [iconId], references: [id])
+  DeviceTypesAtGroup DeviceTypesAtGroup[]
+}
+
+model DeviceTypesAtDefaultScripts {
+  id              String         @id @unique
+  deviceTypeId    String
+  defaultScriptId String
+  DefaultScripts  DefaultScripts @relation(fields: [defaultScriptId], references: [id])
+  DeviceType      DeviceType     @relation(fields: [deviceTypeId], references: [id])
+}
+
+model DeviceTypesAtGroup {
+  groupId     String
+  deviceId    String
+  DeviceType  DeviceType  @relation(fields: [deviceId], references: [id])
+  DeviceGroup DeviceGroup @relation(fields: [groupId], references: [id])
+
+  @@id([groupId, deviceId])
+}
+
+model Icon {
+  id             String           @id @unique
+  name           String
+  url            String
+  userId         String?
+  DeviceGroup    DeviceGroup[]
+  DeviceType     DeviceType[]
+  User           User?            @relation(fields: [userId], references: [id])
+  SensorSettings SensorSettings[]
+}
+
+model ShellduesChainLink {
+  id         String   @id @unique
+  name       String
+  shelldueId String
+  number     Int
+  action     Json
+  Shelldue   Shelldue @relation(fields: [shelldueId], references: [id], onDelete: Cascade)
 }
 
 enum UserStatus {
@@ -296,4 +350,20 @@ enum UserRole {
   manager
   support
   user
+}
+
+enum ShelldueType {
+  time
+  condition
+  tip
+}
+
+enum deviceCategory {
+  State
+  Action
+  K_Telecom
+  Value
+  Teremok
+  SmartBulb
+  Thermostat
 }

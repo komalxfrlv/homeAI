@@ -1,4 +1,5 @@
 const express = require('express');
+const  lodash = require('lodash');
 const application = express();
 
 const mqtt = require("mqtt");
@@ -88,35 +89,56 @@ is.on("connection", function (socket) {
   });
 });
 
-ioClient.on('saveToDb', async function (data, topic) {
+ioClient.on('saveToDb', async function (getedData, topic) {
   let userId = topic[0];
   let gatewayId = topic[1];
   let elementId = topic[2];
   
-  delete data.modeTelecom;
+  delete getedData.modeTelecom;
 
-  data.linkquality? data.linkquality = Math.round((data.linkquality/255)*100) :""
+  getedData.linkquality? getedData.linkquality = Math.round((getedData.linkquality/255)*100) :""
 
-  console.log('pizdata:', data);
+  console.log('pizdata:', getedData);
   console.log('/' + userId + '/' + gatewayId + '/' + elementId);
   try {
 
     let sensor = await db.sensor.findFirst({
       where: {
         elementId: elementId
+      },
+      include:{
+        device:true,
+        data:{
+          take:1,
+          orderBy:[{
+            createdAt:"desc"
+          }]
+        }
       }
     });
-
+    const dataKeys = Object.keys(getedData)
+    let dataToWrite = {}
+    
+    dataKeys.forEach((field, i) => {
+      sensor.device.majorFields.includes(field)?dataToWrite[field] = getedData[field]:""
+    });    
+    console.log(sensor.data[0].value)
+    console.log(dataToWrite)
     console.log('sensor:' + sensor.id);
+    if(sensor.device.frontView.chartData || !lodash.isEqual(dataToWrite, sensor.data[0].value)){
+      let newData = await db.data.create({
+        data: {
+          value: dataToWrite,
+          sensorId: sensor.id,
+        }
+      });
+      console.log("writen\n\n")
+    }
+    else{
+      console.log(`duplicate data\n\n`)
+    }
 
-    let newData = await db.data.create({
-      data: {
-        value: data,
-        sensorId: sensor.id,
-      }
-    });
-
-    console.log('data: ' + newData);
+    //console.log('data: ' + newData);
   }
   catch (err) {
     console.log(err)
