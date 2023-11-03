@@ -19,9 +19,9 @@ const optSsl = {
 
 
 const https = require("https").Server(optSsl,application);
-const is = require("socket.io")(http);
+const is = require("socket.io")(https);
 const io = require('socket.io-client');
-const ioClient = io.connect('http://localhost:5002')
+const ioClient = io.connect('https://localhost:5002')
 
 const { db } = require('./src/db');
 
