@@ -4,7 +4,21 @@ const application = express();
 
 const mqtt = require("mqtt");
 
-const http = require("http").Server(application);
+const fs = require("fs");
+const path = require("path")
+const privateKey = fs.readFileSync(path.join("/etc/nginx/ssl/k-telecom.org.key"), "utf8");
+const certificate = fs.readFileSync(path.join("/etc/nginx/ssl/k-telecom.org.crt"), "utf8");
+
+const optSsl = {
+  key: privateKey,
+  cert: certificate,
+ // ca: [certificate],
+  requestCert: false, // put true if you want a client certificate, tested and it works
+  rejectUnauthorized: false,
+};
+
+
+const https = require("https").Server(optSsl,application);
 const is = require("socket.io")(http);
 const io = require('socket.io-client');
 const ioClient = io.connect('http://localhost:5002')
@@ -178,6 +192,6 @@ mqttClient.on("message", function (topic, payload, packet) {
 
 
 
-http.listen(5002, function () {
+https.listen(5002, function () {
   console.log("Клиентский канал запущен, порт: " + 5002);
 });
