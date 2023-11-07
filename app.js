@@ -129,16 +129,11 @@ ioClient.on('saveToDb', async function (getedData, topic) {
           }]
         },
         station:true,
-            data:{
-              orderBy:{
-                createdAt:"desc"
-              }
-            },
-            settings:{
-              include:{
-                Rooms:true
-              }
-            }
+        settings:{
+          include:{
+            Rooms:true
+          }
+        }
       }
     });
     const dataKeys = Object.keys(getedData)
@@ -147,7 +142,6 @@ ioClient.on('saveToDb', async function (getedData, topic) {
     dataKeys.forEach((field, i) => {
       sensor.device.majorFields.includes(field)?dataToWrite[field] = getedData[field]:""
     });    
-    console.log(sensor.data[0].value)
     console.log(dataToWrite)
     console.log('sensor:' + sensor.id);
     if(!lodash.isEqual(dataToWrite, sensor.data[0].value)){
@@ -157,6 +151,7 @@ ioClient.on('saveToDb', async function (getedData, topic) {
           sensorId: sensor.id,
         }
       });
+      console.log(newData)
       if(sensor.device.frontView.chartData){
         const toLog = {
           userId:     userId,
@@ -207,8 +202,6 @@ mqttClient.on("message", function (topic, payload, packet) {
         elementID: getTopic[2].toString()
       }
     }
-    //is.to(getTopic[0]).emit("cmd", ""+cmdData.toString());
-    console.log(obj)
     is.to(getTopic[0]).emit("cmd", {gatewayId : getTopic[1] , elementID: getTopic[2] , payload : obj.JSON.stringify()});
 
   } catch (e) {
