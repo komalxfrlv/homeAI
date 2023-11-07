@@ -21,7 +21,7 @@ const https = require("https").Server(optSsl,application);
 
 const is = require("socket.io")(https);
 const io = require('socket.io-client');
-const ioClient = io.connect(`${process.env.APP_HOST}:${process.env.APP_PORT}`)
+const ioClient = io.connect(`https://${process.env.APP_HOST}:${process.env.APP_PORT}`)
 
 const { db } = require('./src/db');
 
@@ -185,14 +185,11 @@ ioClient.on('saveToDb', async function (getedData, topic) {
 mqttClient.on("message", function (topic, payload, packet) {
   // Payload is Buffer
   var getTopic = topic.split("/");   //  Получаем топики
-  //console.log("getTopic = " + getTopic);
-  //var getSend = JSON.parse(payload.toString()); //  Получаем сообщение 
   
   // is.emit(getSend.message, {getSend: getSend, getTopic: getTopic})
   try {
     var obj = JSON.parse(payload.toString())
     obj.linkquality? obj.linkquality = Math.round((obj.linkquality/255)*100) :""
-    console.log(obj)
     if (obj['mT']) {
       is.emit(obj['mT'], obj, getTopic);
       //console.log("gavnormal = " + obj['modeTelecom']);
@@ -200,7 +197,6 @@ mqttClient.on("message", function (topic, payload, packet) {
     else {
       if (getTopic.length == 3) {
         is.emit('saveToDb', obj, getTopic)
-        //console.log("saving zigbee data")
       }
     }
     let cmdData = {
