@@ -21,7 +21,7 @@ const https = require("https").Server(optSsl,application);
 
 const is = require("socket.io")(https);
 const io = require('socket.io-client');
-const ioClient = io.connect(`https://${process.env.APP_HOST}:${process.env.APP_PORT}`)
+const ioClient = io.connect(`${process.env.APP_HOST}:${process.env.APP_PORT}`)
 
 const { db } = require('./src/db');
 
