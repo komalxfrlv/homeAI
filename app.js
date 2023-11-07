@@ -207,8 +207,8 @@ mqttClient.on("message", function (topic, payload, packet) {
         elementID: getTopic[2].toString()
       }
     }
-    is.to(getTopic[0]).emit("cmd", ""+cmdData.toString());
-    is.to(getTopic[0]).emit("cmd", {topic: {gatewayId: getTopic[1], elementID: getTopic[2]}, payload: obj.toString()}.toString());
+    //is.to(getTopic[0]).emit("cmd", ""+cmdData.toString());
+    is.to(getTopic[0]).emit("cmd", {topic: {gatewayId: getTopic[1], elementID: getTopic[2]}.toString(), payload: obj.toString()}.toString());
 
   } catch (e) {
     //console.log('oshibka: Error parsing')
