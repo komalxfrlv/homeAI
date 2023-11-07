@@ -182,7 +182,7 @@ mqttClient.on("message", function (topic, payload, packet) {
   try {
     var obj = JSON.parse(payload.toString())
     obj.linkquality? obj.linkquality = Math.round((obj.linkquality/255)*100) :""
-    is.to(getTopic[0]).emit("cmd", '{"topic": {"gatewayId":"' +  getTopic[1]+ '","elementID": "'+ getTopic[2] + '"} , "payload" : '+  obj.toString() + '}') 
+    is.to(getTopic[0]).emit("cmd", '{"topic": {"gatewayId":"' +  getTopic[1]+ '","elementID": "'+ getTopic[2] + '"} , "payload" : '+  JSON.stringify(obj) + '}') 
     if (obj['mT']) {
       is.emit(obj['mT'], obj, getTopic);
     }
