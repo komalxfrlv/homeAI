@@ -141,7 +141,7 @@ ioClient.on('saveToDb', async function (getedData, topic) {
       sensor.device.majorFields.includes(field)?dataToWrite[field] = getedData[field]:""
     });    
     console.log(dataToWrite)
-    //console.log('sensor:' + sensor.id);
+    console.log(sensor);
     if(!lodash.isEqual(dataToWrite, sensor.data[0].value) && !lodash.isEmpty(dataToWrite)){
       let newData = await db.data.create({
         data: {
