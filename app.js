@@ -83,7 +83,6 @@ is.on("connection", function (socket) {
     let room = data.room;
 
     socket.join(room);
-    //socket.to(room).emit("cmd" , {action : 'auth'}); 
     console.log("start room " + data.room);
     mqttClient.publish(room + "/" + data.gatewayId + "/get", '{"action" : "auth"}');
   });
@@ -97,8 +96,6 @@ is.on("connection", function (socket) {
     let gatewayId = "" + data.gatewayId;      //  Формиурем топик 
     let device = "" + data.device;           //
     let message = "" + data.message;       //  Основной json , который собирается в фронте и отправляется к брокеру 
-
-    //console.log("{ onBroker: " + userId + "/" + gatewayId + "/" + device + "\n" + "message: " + message + " }");
 
     mqttClient.publish(userId + "/" + gatewayId + "/" + device, message , {retain : retain}); // Отправлем комманду на шлюз с айди устройством 
   });
@@ -144,7 +141,7 @@ ioClient.on('saveToDb', async function (getedData, topic) {
     });    
     console.log(dataToWrite)
     console.log('sensor:' + sensor.id);
-    if(!lodash.isEqual(dataToWrite, sensor.data[0].value)){
+    if(!lodash.isEqual(dataToWrite, sensor.data[0].value) && dataToWrite.length){
       let newData = await db.data.create({
         data: {
           value: dataToWrite,
@@ -182,13 +179,12 @@ mqttClient.on("message", function (topic, payload, packet) {
   // Payload is Buffer
   var getTopic = topic.split("/");   //  Получаем топики
   
-  // is.emit(getSend.message, {getSend: getSend, getTopic: getTopic})
   try {
     var obj = JSON.parse(payload.toString())
     obj.linkquality? obj.linkquality = Math.round((obj.linkquality/255)*100) :""
+    is.to(getTopic[0]).emit("cmd", '{"topic": {"gatewayId":"' +  getTopic[1]+ '","elementID": "'+ getTopic[2] + '"} , "payload" : '+  obj.toString() + '}') 
     if (obj['mT']) {
       is.emit(obj['mT'], obj, getTopic);
-      //console.log("gavnormal = " + obj['modeTelecom']);
     }
     else {
       if (getTopic.length == 3) {
@@ -207,7 +203,6 @@ mqttClient.on("message", function (topic, payload, packet) {
   } catch (e) {
     //console.log('oshibka: Error parsing')
   }
-  //console.log("gavnormal");
 });
 
 async function writeToLog(data, code){
