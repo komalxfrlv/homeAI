@@ -136,7 +136,7 @@ ioClient.on('saveToDb', async function (getedData, topic) {
             },
             settings:{
               include:{
-                room:true
+                Rooms:true
               }
             }
       }
