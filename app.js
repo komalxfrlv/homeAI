@@ -166,7 +166,7 @@ ioClient.on('saveToDb', async function (getedData, topic) {
       console.log(`duplicate data\n\n`)
     }
 
-    console.log('data: ' + newData);
+    //console.log('data: ' + newData);
   }
   catch (err) {
     console.log(err)
