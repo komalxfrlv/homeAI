@@ -149,8 +149,8 @@ ioClient.on('saveToDb', async function (getedData, topic) {
           sensorId: sensor.id,
         }
       });
-      console.log(newData)
-      if(sensor.device.frontView.chartData){
+      console.log(!sensor.device.frontView.chartData)
+      if(!sensor.device.frontView.chartData){
         const toLog = {
           userId:     userId,
           stationId:  sensor.stationId,
