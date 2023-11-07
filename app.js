@@ -208,6 +208,7 @@ mqttClient.on("message", function (topic, payload, packet) {
       }
     }
     //is.to(getTopic[0]).emit("cmd", ""+cmdData.toString());
+    console.log(obj)
     is.to(getTopic[0]).emit("cmd", {gatewayId : getTopic[1] , elementID: getTopic[2] , payload : obj.JSON.stringify()});
 
   } catch (e) {
