@@ -149,7 +149,6 @@ ioClient.on('saveToDb', async function (getedData, topic) {
           sensorId: sensor.id,
         }
       });
-      console.log(!sensor.device.frontView.chartData)
       if(!sensor.device.frontView.chartData){
         const toLog = {
           userId:     userId,
@@ -157,7 +156,7 @@ ioClient.on('saveToDb', async function (getedData, topic) {
           sensorId:   sensor.id,
           dataId:     newData.id,
           sensorName: sensor.settings.name,
-          roomName:   sensor.SensorSettings.Rooms.name
+          roomName:   sensor.settings.Rooms.name
       }
         console.log("try to start func")
         await writeToLog(toLog, 4)
