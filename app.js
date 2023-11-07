@@ -201,10 +201,10 @@ mqttClient.on("message", function (topic, payload, packet) {
       }
     }
     let cmdData = {
-      payload: obj,
+      payload: obj.toString(),
       topic:{
-        gatewayId: getTopic[1],
-        elementID: getTopic[2]
+        gatewayId: getTopic[1].toString(),
+        elementID: getTopic[2].toString()
       }
     }
     is.to(getTopic[0]).emit("cmd", cmdData.toString());
