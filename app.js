@@ -1,7 +1,6 @@
 const express = require('express');
 const  lodash = require('lodash');
 const application = express();
-
 const mqtt = require("mqtt");
 
 const fs = require("fs");
@@ -17,11 +16,12 @@ const optSsl = {
   rejectUnauthorized: false,
 };
 
-
 const https = require("https").Server(optSsl,application);
+
+
 const is = require("socket.io")(https);
 const io = require('socket.io-client');
-const ioClient = io.connect('https://localhost:5002')
+const ioClient = io.connect(`http:${process.env.APP_HOST}:${process.env.APP_PORT}`)
 
 const { db } = require('./src/db');
 
@@ -54,12 +54,12 @@ const mqttOptions = {
   username: process.env.MQTT_USERNAME,
   password: process.env.MQTT_PASSWORD,
 };
-
+console.log(mqttOptions)
 const mqttClient = mqtt.connect(mqttUrl, mqttOptions);
 
 mqttClient.on("connect", function () {
   if (mqttClient.connected) {
-    //console.log("conected");
+    console.log("conected");
     mqttClient.subscribe("#");  // Подпись на все топики
   } else {
     console.log("disconeted");
@@ -110,7 +110,6 @@ ioClient.on('saveToDb', async function (getedData, topic) {
   
   delete getedData.modeTelecom;
 
-  getedData.linkquality? getedData.linkquality = Math.round((getedData.linkquality/255)*100) :""
 
   console.log('pizdata:', getedData);
   console.log('/' + userId + '/' + gatewayId + '/' + elementId);
@@ -127,7 +126,18 @@ ioClient.on('saveToDb', async function (getedData, topic) {
           orderBy:[{
             createdAt:"desc"
           }]
-        }
+        },
+        station:true,
+            data:{
+              orderBy:{
+                createdAt:"desc"
+              }
+            },
+            settings:{
+              include:{
+                room:true
+              }
+            }
       }
     });
     const dataKeys = Object.keys(getedData)
@@ -139,20 +149,31 @@ ioClient.on('saveToDb', async function (getedData, topic) {
     console.log(sensor.data[0].value)
     console.log(dataToWrite)
     console.log('sensor:' + sensor.id);
-    if(sensor.device.frontView.chartData || !lodash.isEqual(dataToWrite, sensor.data[0].value)){
+    if(!lodash.isEqual(dataToWrite, sensor.data[0].value)){
       let newData = await db.data.create({
         data: {
           value: dataToWrite,
           sensorId: sensor.id,
         }
       });
-      console.log("writen\n\n")
+      if(sensor.device.frontView.chartData){
+        const toLog = {
+          userId:     userId,
+          stationId:  sensor.stationId,
+          sensorId:   sensor.id,
+          dataId:     newData.id,
+          sensorName: sensor.settings.name,
+          roomName:   sensor.SensorSettings.Rooms.name
+      }
+        writeToLog(toLog, 4)
+      }
+      console.log(`writen\n\n`)
     }
     else{
       console.log(`duplicate data\n\n`)
     }
 
-    //console.log('data: ' + newData);
+    console.log('data: ' + newData);
   }
   catch (err) {
     console.log(err)
@@ -164,14 +185,14 @@ ioClient.on('saveToDb', async function (getedData, topic) {
 mqttClient.on("message", function (topic, payload, packet) {
   // Payload is Buffer
   var getTopic = topic.split("/");   //  Получаем топики
-  var getSend = payload.toString();
   //console.log("getTopic = " + getTopic);
-  // var getSend = JSON.parse(payload.toString()); //  Получаем сообщение 
-
+  //var getSend = JSON.parse(payload.toString()); //  Получаем сообщение 
+  
   // is.emit(getSend.message, {getSend: getSend, getTopic: getTopic})
   try {
-    let obj = JSON.parse(payload.toString())
-
+    var obj = JSON.parse(payload.toString())
+    obj.linkquality? obj.linkquality = Math.round((obj.linkquality/255)*100) :""
+    console.log(obj)
     if (obj['mT']) {
       is.emit(obj['mT'], obj, getTopic);
       //console.log("gavnormal = " + obj['modeTelecom']);
@@ -182,16 +203,42 @@ mqttClient.on("message", function (topic, payload, packet) {
         //console.log("saving zigbee data")
       }
     }
-
+    let cmdData = {
+      payload: obj,
+      topic:{
+        gatewayId: getTopic[1],
+        elementID: getTopic[2]
+      }
+    }
+    is.to(getTopic[0]).emit("cmd", cmdData.toString());
   } catch (e) {
     //console.log('oshibka: Error parsing')
   }
   //console.log("gavnormal");
-  is.to(getTopic[0]).emit("cmd", '{"payload": ' + payload.toString() + ', "topic" : { "gatewayId": "' + getTopic[1] + '","elementID" :"' + getTopic[2]+'"}}');
 });
 
+async function writeToLog(data, code){
+  try{
+    const url = `http://${process.env.LOGGER_HOST || "localhost"}:${process.env.LOGGER_PORT || "5282"}/${code}` 
+    const postData = {
+      method: "POST",
+      headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+      data: data
+      })
+    }
+    await fetch(url, postData)
+    .then(console.log(`Data logged`))
+    .catch(err => {throw new Error(err)})
+  }
+  catch(err){
+    console.log(err)
+  }
+}
 
-
-https.listen(5002, function () {
+application.listen(5002, function () {
   console.log("Клиентский канал запущен, порт: " + 5002);
 });
