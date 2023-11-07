@@ -109,7 +109,7 @@ ioClient.on('saveToDb', async function (getedData, topic) {
   delete getedData.modeTelecom;
 
 
-  console.log('pizdata:', getedData);
+  //console.log('pizdata:', getedData);
   console.log('/' + userId + '/' + gatewayId + '/' + elementId);
   try {
 
@@ -140,7 +140,7 @@ ioClient.on('saveToDb', async function (getedData, topic) {
       sensor.device.majorFields.includes(field)?dataToWrite[field] = getedData[field]:""
     });    
     console.log(dataToWrite)
-    console.log('sensor:' + sensor.id);
+    //console.log('sensor:' + sensor.id);
     if(!lodash.isEqual(dataToWrite, sensor.data[0].value) && !lodash.isEmpty(dataToWrite)){
       let newData = await db.data.create({
         data: {
@@ -182,7 +182,7 @@ mqttClient.on("message", function (topic, payload, packet) {
   try {
     var obj = JSON.parse(payload.toString())
     obj.linkquality? obj.linkquality = Math.round((obj.linkquality/255)*100) :""
-    is.to(getTopic[0]).emit("cmd", '{"topic": {"gatewayId":"' +  getTopic[1]+ '","elementID": "'+ getTopic[2] + '"} , "payload" : '+  JSON.stringify(obj) + '}') 
+    //is.to(getTopic[0]).emit("cmd", '{"topic": {"gatewayId":"' +  getTopic[1]+ '","elementID": "'+ getTopic[2] + '"} , "payload" : '+  JSON.stringify(obj) + '}') 
     if (obj['mT']) {
       is.emit(obj['mT'], obj, getTopic);
     }
@@ -192,13 +192,13 @@ mqttClient.on("message", function (topic, payload, packet) {
       }
     }
     let cmdData = {
-      payload: obj.toString(),
+      payload: obj,
       topic:{
-        gatewayId: getTopic[1].toString(),
-        elementID: getTopic[2].toString()
+        gatewayId: getTopic[1],
+        elementID: getTopic[2]
       }
     }
-    is.to(getTopic[0]).emit("cmd", {gatewayId : getTopic[1] , elementID: getTopic[2] , payload : obj.JSON.stringify()});
+    is.to(getTopic[0]).emit("cmd", JSON.stringify(cmdData));
 
   } catch (e) {
     //console.log('oshibka: Error parsing')
@@ -218,6 +218,8 @@ async function writeToLog(data, code){
       data: data
       })
     }
+    console.log(url)
+    console.log(postData)
     await fetch(url, postData)
     .then(console.log(`Data logged`))
     .catch(err => {throw new Error(err)})
