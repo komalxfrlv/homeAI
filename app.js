@@ -235,6 +235,6 @@ async function writeToLog(data, code){
   }
 }
 
-application.listen(5002, function () {
+https.listen(5002, function () {
   console.log("Клиентский канал запущен, порт: " + 5002);
 });
