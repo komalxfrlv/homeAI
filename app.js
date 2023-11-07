@@ -158,7 +158,7 @@ ioClient.on('saveToDb', async function (getedData, topic) {
           sensorName: sensor.settings.name,
           roomName:   sensor.SensorSettings.Rooms.name
       }
-        writeToLog(toLog, 4)
+        await writeToLog(toLog, 4)
       }
       console.log(`writen\n\n`)
     }
