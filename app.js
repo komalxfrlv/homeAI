@@ -136,12 +136,10 @@ ioClient.on('saveToDb', async function (getedData, topic) {
     });
     const dataKeys = Object.keys(getedData)
     let dataToWrite = {}
-    //console.log(sensor)
     dataKeys.forEach((field, i) => {
       sensor.device.majorFields.includes(field)?dataToWrite[field] = getedData[field]:""
     });    
     console.log(dataToWrite)
-    console.log(sensor);
     if(!lodash.isEqual(dataToWrite, sensor.data[0].value) && !lodash.isEmpty(dataToWrite)){
       let newData = await db.data.create({
         data: {
@@ -158,8 +156,7 @@ ioClient.on('saveToDb', async function (getedData, topic) {
           sensorName: sensor.settings.name,
           roomName:   sensor.settings.Rooms.name
       }
-        console.log("try to start func")
-        await writeToLog(toLog, 4)
+        writeToLog(toLog, 4)
       }
       console.log(`writen\n\n`)
     }
@@ -207,7 +204,6 @@ mqttClient.on("message", function (topic, payload, packet) {
 
 async function writeToLog(data, code){
   try{
-    console.log("start func")
     const url = `http://${process.env.LOGGER_HOST || "localhost"}:${process.env.LOGGER_PORT || "5282"}/${code}` 
     const postData = {
       method: "POST",
@@ -219,8 +215,6 @@ async function writeToLog(data, code){
       data: data
       })
     }
-    console.log(url)
-    console.log(postData)
     await fetch(url, postData)
     .then(console.log(`Data logged`))
     .catch(err => {throw new Error(err)})
