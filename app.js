@@ -159,6 +159,7 @@ ioClient.on('saveToDb', async function (getedData, topic) {
           sensorName: sensor.settings.name,
           roomName:   sensor.SensorSettings.Rooms.name
       }
+        console.log("try to start func")
         await writeToLog(toLog, 4)
       }
       console.log(`writen\n\n`)
@@ -183,7 +184,6 @@ mqttClient.on("message", function (topic, payload, packet) {
   try {
     var obj = JSON.parse(payload.toString())
     obj.linkquality? obj.linkquality = Math.round((obj.linkquality/255)*100) :""
-    //is.to(getTopic[0]).emit("cmd", '{"topic": {"gatewayId":"' +  getTopic[1]+ '","elementID": "'+ getTopic[2] + '"} , "payload" : '+  JSON.stringify(obj) + '}') 
     if (obj['mT']) {
       is.emit(obj['mT'], obj, getTopic);
     }
@@ -208,6 +208,7 @@ mqttClient.on("message", function (topic, payload, packet) {
 
 async function writeToLog(data, code){
   try{
+    console.log("start func")
     const url = `http://${process.env.LOGGER_HOST || "localhost"}:${process.env.LOGGER_PORT || "5282"}/${code}` 
     const postData = {
       method: "POST",
