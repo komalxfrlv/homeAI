@@ -142,7 +142,7 @@ ioClient.on('saveToDb', async function (getedData, topic) {
     });
     const dataKeys = Object.keys(getedData)
     let dataToWrite = {}
-    
+    console.log(sensor)
     dataKeys.forEach((field, i) => {
       sensor.device.majorFields.includes(field)?dataToWrite[field] = getedData[field]:""
     });    
