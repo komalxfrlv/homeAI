@@ -147,6 +147,15 @@ ioClient.on('saveToDb', async function (getedData, topic) {
           sensorId: sensor.id,
         }
       });
+      await db.sensor.update({
+        where:{
+          id: sensor.id
+        },
+        data:{
+          charge:getedData.battery || sensor.charge,
+          linkquality:getedData.linkquality || sensor.linkquality
+        }
+      })
       if(!sensor.device.frontView.chartData){
         const toLog = {
           userId:     userId,

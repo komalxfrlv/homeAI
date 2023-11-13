@@ -16,38 +16,41 @@ model City {
 }
 
 model User {
-  id             String             @id @unique @default(uuid())
-  name           String             @db.VarChar(255)
-  surname        String             @db.VarChar(255)
-  patronymic     String             @db.VarChar(255)
-  email          String             @unique
-  phone          BigInt
-  password       String
-  verified       Boolean            @default(false)
-  status         UserStatus
-  client         UserClient
-  role           UserRole
-  auto_updating  Boolean            @default(true)
-  auto_paying    Boolean            @default(true)
-  get_push       Boolean            @default(true)
-  get_email      Boolean            @default(true)
-  hash_rst       String?            @db.VarChar(255)
-  hash_vrf       String?            @db.VarChar(255)
-  remainingTries Int                @default(0)
-  token          String[]
-  createdAt      DateTime           @default(now())
-  updatedAt      DateTime           @updatedAt
-  cityId         String
-  contracts      Contract[]
-  EventLog       EventLog[]
-  Icon           Icon[]
-  metrics        Metric[]
-  refreshTokens  RefreshToken[]
-  Rooms          Rooms[]
-  shelldues      Shelldue[]
-  stations       Station[]
-  city           City               @relation(fields: [cityId], references: [id])
-  userGroups     UserToUserGroups[]
+  id                  String             @id @unique @default(uuid())
+  name                String             @db.VarChar(255)
+  surname             String             @db.VarChar(255)
+  patronymic          String             @db.VarChar(255)
+  email               String             @unique
+  phone               BigInt
+  password            String
+  verified            Boolean            @default(false)
+  status              UserStatus
+  client              UserClient
+  role                UserRole
+  auto_updating       Boolean            @default(true)
+  auto_paying         Boolean            @default(true)
+  get_push            Boolean            @default(true)
+  get_email           Boolean            @default(true)
+  hash_rst            String?            @db.VarChar(255)
+  hash_vrf            String?            @db.VarChar(255)
+  remainingTries      Int                @default(0)
+  token               String[]
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  cityId              String
+  permissionsIssued   Json?
+  permissionsReceived Json?
+  contracts           Contract[]
+  EventLog            EventLog[]
+  Icon                Icon[]
+  metrics             Metric[]
+  refreshTokens       RefreshToken[]
+  Rooms               Rooms[]
+  shelldues           Shelldue[]
+  stations            Station[]
+  city                City               @relation(fields: [cityId], references: [id])
+  userGroups          UserToUserGroups[]
+  UsersAtFacility     UsersAtFacility[]
 }
 
 model RefreshToken {
@@ -129,18 +132,19 @@ model StationSettings {
 }
 
 model Sensor {
-  id        String          @id @unique @default(uuid())
-  mac       String          @db.VarChar(99)
-  elementId String?         @db.VarChar(99)
-  charge    Int?
-  uptime    BigInt?
-  deviceId  String
-  stationId String
-  data      Data[]
-  EventLog  EventLog[]
-  device    DeviceType      @relation(fields: [deviceId], references: [id])
-  station   Station         @relation(fields: [stationId], references: [id], onDelete: Cascade)
-  settings  SensorSettings?
+  id          String          @id @unique @default(uuid())
+  mac         String          @db.VarChar(99)
+  elementId   String?         @db.VarChar(99)
+  charge      Int?
+  uptime      BigInt?
+  deviceId    String
+  stationId   String
+  linkquality Int             @default(0)
+  data        Data[]
+  EventLog    EventLog[]
+  device      DeviceType      @relation(fields: [deviceId], references: [id])
+  station     Station         @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  settings    SensorSettings?
 }
 
 model SensorSettings {
@@ -283,6 +287,8 @@ model Rooms {
   userId          String
   createdAt       DateTime          @default(now())
   updatedAt       DateTime
+  facilityId      String?
+  Facility        Facility?         @relation(fields: [facilityId], references: [id], onDelete: Cascade)
   User            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   SensorSettings  SensorSettings[]
   StationSettings StationSettings[]
@@ -331,6 +337,22 @@ model ShellduesChainLink {
   number     Int
   action     Json
   Shelldue   Shelldue @relation(fields: [shelldueId], references: [id], onDelete: Cascade)
+}
+
+model Facility {
+  id              String            @id @unique
+  name            String
+  Rooms           Rooms[]
+  UsersAtFacility UsersAtFacility[]
+}
+
+model UsersAtFacility {
+  userId     String
+  facilityId String
+  Facility   Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  User       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([facilityId, userId])
 }
 
 enum UserStatus {
