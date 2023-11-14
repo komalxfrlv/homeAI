@@ -50,7 +50,7 @@ model User {
   stations            Station[]
   city                City               @relation(fields: [cityId], references: [id])
   userGroups          UserToUserGroups[]
-  UsersAtFacility     UsersAtFacility[]
+  UsersAtHouses       UsersAtHouses[]
 }
 
 model RefreshToken {
@@ -287,8 +287,8 @@ model Rooms {
   userId          String
   createdAt       DateTime          @default(now())
   updatedAt       DateTime
-  facilityId      String?
-  Facility        Facility?         @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  housesId        String?
+  Houses          Houses?           @relation(fields: [housesId], references: [id], onDelete: Cascade)
   User            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   SensorSettings  SensorSettings[]
   StationSettings StationSettings[]
@@ -339,20 +339,21 @@ model ShellduesChainLink {
   Shelldue   Shelldue @relation(fields: [shelldueId], references: [id], onDelete: Cascade)
 }
 
-model Facility {
-  id              String            @id @unique
-  name            String
-  Rooms           Rooms[]
-  UsersAtFacility UsersAtFacility[]
+model Houses {
+  id            String          @id @unique
+  name          String
+  Rooms         Rooms[]
+  UsersAtHouses UsersAtHouses[]
 }
 
-model UsersAtFacility {
-  userId     String
-  facilityId String
-  Facility   Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
-  User       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+model UsersAtHouses {
+  userId   String
+  housesId String
+  admin    Boolean @default(false)
+  Houses   Houses  @relation(fields: [housesId], references: [id], onDelete: Cascade)
+  User     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@id([facilityId, userId])
+  @@id([housesId, userId])
 }
 
 enum UserStatus {
