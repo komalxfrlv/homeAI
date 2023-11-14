@@ -61,7 +61,7 @@ const mqttClient = mqtt.connect(mqttUrl, mqttOptions);
 mqttClient.on("connect", function () {
   if (mqttClient.connected) {
     console.log("conected");
-    mqttClient.subscribe("#");  // Подпись на все топики
+    mqttClient.subscribe("+/+/+");  // Подпись на все топики где только 3 эллемента
   } else {
     console.log("disconeted");
   }
@@ -139,8 +139,9 @@ ioClient.on('saveToDb', async function (getedData, topic) {
     dataKeys.forEach((field, i) => {
       sensor.device.majorFields.includes(field)?dataToWrite[field] = getedData[field]:""
     });    
-    console.log(dataToWrite)
     if(!lodash.isEqual(dataToWrite, sensor.data[0].value) && !lodash.isEmpty(dataToWrite)){
+      console.log(dataToWrite)
+      console.log(sensor.data[0].value)
       let newData = await db.data.create({
         data: {
           value: dataToWrite,
