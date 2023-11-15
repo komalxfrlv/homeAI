@@ -28,7 +28,7 @@ if(process.env.APP_MODE){
   const is = require("socket.io")(https);
   const io = require('socket.io-client');
   
-  var ioClient = io.connect(`https://${process.env.APP_HOST}:${process.env.APP_PORT}`)
+  var ioClient = io.connect(`https://${process.env.APP_HOST || "localhost"}:${process.env.APP_PORT || 5002}`)
   
 }
 else{
@@ -113,14 +113,9 @@ is.on("connection", function (socket) {
     mqttClient.publish(userId + "/" + gatewayId + "/" + device, message , {retain : retain}); // Отправлем комманду на шлюз с айди устройством 
   });
 });
-ioClient.on("connection" , function() {
-  console.log("socket connect");
 
-})
 ioClient.on('saveToDb', saveToDb);
-ioClient.on('test' , function(){
-  console.log("test");
-});
+
 ioClient.on('device_connected', createNewSensor);
 
 mqttClient.on("message", function (topic, payload, packet) {
