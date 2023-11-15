@@ -10,22 +10,17 @@ const fs = require("fs");
 const path = require("path")
 var io = require('socket.io-client');
 var host = `${process.env.APP_HOST || "localhost"}:${process.env.APP_PORT || 5002}`
+
 if(process.env.APP_MODE){
   const privateKey = fs.readFileSync(path.join("/etc/nginx/ssl/k-telecom.org.key"), "utf8");
   const certificate = fs.readFileSync(path.join("/etc/nginx/ssl/k-telecom.org.crt"), "utf8");
-  
   const optSsl = {
     key: privateKey,
-    cert: certificate,
-   // ca: [certificate],
-    requestCert: false, // put true if you want a client certificate, tested and it works
-    rejectUnauthorized: false,
+    cert: certificate
   };
-  
   var https = require("https").Server(optSsl,application);
   var is = require("socket.io")(https);
   host = 'https://'+host
-  
 }
 else{
   var http = require("http").Server(application);
@@ -120,17 +115,11 @@ mqttClient.on("message", function (topic, payload, packet) {
   try {
     var obj = JSON.parse(payload.toString())
     obj.linkquality? obj.linkquality = Math.round((obj.linkquality/255)*100) :""
-    if (obj['mT']) {
-      is.emit(obj['mT'], obj, getTopic);
+    if (getTopic.length == 3 || obj['mT']) {
+      saveToDb(obj, topic)
     }
-    else {
-      if (getTopic.length == 3) {
-        is.emit('saveToDb', obj, getTopic)
-        console.log(host)
-      }
-      if(obj['type']=="device_connected"){
-        is.emit('newSensor', obj, getTopic)
-      }
+    if(obj['type']=="device_connected"){
+      createNewSensor(obj, topic)
     }
     let cmdData = {
       payload: obj,
