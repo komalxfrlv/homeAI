@@ -22,11 +22,11 @@ if(process.env.APP_MODE){
     rejectUnauthorized: false,
   };
   
-  const https = require("https").Server(optSsl,application);
+  var https = require("https").Server(optSsl,application);
   
   
-  const is = require("socket.io")(https);
-  const io = require('socket.io-client');
+  var is = require("socket.io")(https);
+  var io = require('socket.io-client');
   
   var ioClient = io.connect(`https://${process.env.APP_HOST || "localhost"}:${process.env.APP_PORT || 5002}`)
   
