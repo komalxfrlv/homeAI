@@ -130,7 +130,7 @@ async function createNewSensor(getedData, topic){
           })
         }
 
-        console.dir(postData.body.sensor.mac)
+        console.dir(postData.body)
         console.log(url)
         await fetch(url, postData)
         .then(console.log(`Sensor created`))
