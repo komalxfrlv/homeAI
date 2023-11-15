@@ -111,7 +111,7 @@ async function createNewSensor(getedData, topic){
                 gatewayId: topic[1]
             }
         })
-        const url = `http://${process.env.MONOLITH_HOST || "localhost"}:${process.env.MONOLITH_PORT || "5000"}/${code}` 
+        const url = `https://${process.env.MONOLITH_HOST || "localhost"}:${process.env.MONOLITH_PORT || "5000"}/api/e/sensors` 
         const postData = {
           method: "POST",
           headers: {
