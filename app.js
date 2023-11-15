@@ -35,7 +35,9 @@ else{
   var http = require("http").Server(application);
   var is = require("socket.io")(http);
   var io = require('socket.io-client');
-  var ioClient = io.connect(`http://${process.env.APP_HOST}:${process.env.APP_PORT}`)
+  //var ioClient = io.connect(`http://${process.env.APP_HOST}:${process.env.APP_PORT}`)
+  var ioClient = io.connect(`http://localhost:5002`)
+
 }
 
 const cors = require('cors');
@@ -111,7 +113,10 @@ is.on("connection", function (socket) {
     mqttClient.publish(userId + "/" + gatewayId + "/" + device, message , {retain : retain}); // Отправлем комманду на шлюз с айди устройством 
   });
 });
+ioClient.on("connection" , function() {
+  console.log("socket connect");
 
+})
 ioClient.on('saveToDb', saveToDb);
 ioClient.on('test' , function(){
   console.log("test");
