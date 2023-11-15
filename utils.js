@@ -1,6 +1,6 @@
 
 const { db } = require('./src/db');
-
+const  lodash = require('lodash');
 async function writeToLog(data, code){
     try{
       const url = `http://${process.env.LOGGER_HOST || "localhost"}:${process.env.LOGGER_PORT || "5282"}/${code}` 

@@ -1,5 +1,4 @@
 const express = require('express');
-const  lodash = require('lodash');
 const application = express();
 const { saveToDb,
         createNewSensor} = require('./utils')
