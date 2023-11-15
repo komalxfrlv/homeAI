@@ -110,7 +110,7 @@ is.on("connection", function (socket) {
 });
 
 ioClient.on('saveToDb', saveToDb);
-ioClient.on('saveToDb', createNewSensor);
+ioClient.on('device_connected', createNewSensor);
 
 
 mqttClient.on("message", function (topic, payload, packet) {
