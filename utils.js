@@ -110,14 +110,14 @@ async function createNewSensor(getedData, topic){
         })
         const url = `http://${process.env.MONOLITH_HOST || "localhost"}:${process.env.MONOLITH_PORT || "5228"}/api/localhost/newSensor` 
         const postData = {
-          payload:{
-            userId:station.userId
-          },
-          method: "POST",
-          headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
-          },
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            payload:{
+              userId:station.userId
+            },
           body: JSON.stringify({
             sensor:{
                 mac:getedData.meta['modelID'],
@@ -130,7 +130,7 @@ async function createNewSensor(getedData, topic){
           })
         }
 
-        console.dir(postData.body)
+        console.dir(postData.payload)
         console.log(url)
         console.log(getedData.meta['modelID'])
         await fetch(url, postData)
