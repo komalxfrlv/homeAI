@@ -103,10 +103,6 @@ is.on("connection", function (socket) {
   });
 });
 
-ioClient.on('saveToDb', saveToDb);
-ioClient.on('test', function(){console.log("test")});
-ioClient.on('device_connected', createNewSensor);
-
 mqttClient.on("message", function (topic, payload, packet) {
   is.emit('test', obj, getTopic)
   // Payload is Buffer
@@ -116,10 +112,10 @@ mqttClient.on("message", function (topic, payload, packet) {
     var obj = JSON.parse(payload.toString())
     obj.linkquality? obj.linkquality = Math.round((obj.linkquality/255)*100) :""
     if (getTopic.length == 3 || obj['mT']) {
-      saveToDb(obj, topic)
+      saveToDb(obj, getTopic)
     }
     if(obj['type']=="device_connected"){
-      createNewSensor(obj, topic)
+      createNewSensor(obj, getTopic)
     }
     let cmdData = {
       payload: obj,
