@@ -61,9 +61,6 @@ async function saveToDb(getedData, topic) {
         sensor.device.majorFields.includes(field)?dataToWrite[field] = getedData[field]:""
       });    
       if(!lodash.isEqual(dataToWrite, sensor.data[0].value) && !lodash.isEmpty(dataToWrite)){
-        console.log(topic)
-        console.log(dataToWrite)
-        console.log(sensor.data[0].value)
         let newData = await db.data.create({
           data: {
             value: dataToWrite,
