@@ -148,7 +148,7 @@ mqttClient.on("message", function (topic, payload, packet) {
 
 if(process.env.APP_MODE){
   https.listen(5002, function () {
-    console.log("Клиентский канал запущен, порт: " + 5002);
+    console.log("Клиентский канал запущен, порт по https: " + 5002);
   });
 }
 else{
