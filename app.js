@@ -9,7 +9,7 @@ require('dotenv').config();
 const fs = require("fs");
 const path = require("path")
 
-
+var host = `https://${process.env.APP_HOST || "localhost"}:${process.env.APP_PORT || 5002}`
 if(process.env.APP_MODE){
   const privateKey = fs.readFileSync(path.join("/etc/nginx/ssl/k-telecom.org.key"), "utf8");
   const certificate = fs.readFileSync(path.join("/etc/nginx/ssl/k-telecom.org.crt"), "utf8");
@@ -27,20 +27,20 @@ if(process.env.APP_MODE){
   
   var is = require("socket.io")(https);
   var io = require('socket.io-client');
-  const host = `https://${process.env.APP_HOST || "localhost"}:${process.env.APP_PORT || 5002}`
+  host = `https://${process.env.APP_HOST || "localhost"}:${process.env.APP_PORT || 5002}`
   var ioClient = io.connect(host)
-  console.log(host)
   
 }
 else{
   var http = require("http").Server(application);
   var is = require("socket.io")(http);
   var io = require('socket.io-client');
+  host = `http://${process.env.APP_HOST || "localhost"}:${process.env.APP_PORT || 5002}`
   //var ioClient = io.connect(`http://${process.env.APP_HOST}:${process.env.APP_PORT}`)
-  var ioClient = io.connect(`http://${process.env.APP_HOST || "localhost"}:${process.env.APP_PORT || 5002}`)
+  var ioClient = io.connect(host)
 
 }
-
+console.log(host)
 const cors = require('cors');
 
 const corsOptions = {
