@@ -132,6 +132,7 @@ async function createNewSensor(getedData, topic){
 
         console.dir(postData.body)
         console.log(url)
+        console.log(getedData.meta.modelId)
         await fetch(url, postData)
         .then(console.log(`Sensor created`))
         .catch(err => {throw new Error(err)})
