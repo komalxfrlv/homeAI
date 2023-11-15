@@ -120,7 +120,7 @@ async function createNewSensor(getedData, topic){
           },
           body: JSON.stringify({
             sensor:{
-                mac:getedData.meta.modelId,
+                mac:getedData.meta['modelID'],
                 elementId:getedData.message
             },
             settings:{
@@ -132,7 +132,7 @@ async function createNewSensor(getedData, topic){
 
         console.dir(postData.body)
         console.log(url)
-        console.log(getedData.meta.modelId)
+        console.log(getedData.meta['modelID'])
         await fetch(url, postData)
         .then(console.log(`Sensor created`))
         .catch(err => {throw new Error(err)})
