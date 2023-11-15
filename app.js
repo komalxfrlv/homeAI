@@ -1,30 +1,39 @@
 const express = require('express');
 const  lodash = require('lodash');
 const application = express();
+const { saveToDb,
+        createNewSensor} = require('./utils')
 const mqtt = require("mqtt");
 require('dotenv').config();
 
 const fs = require("fs");
 const path = require("path")
-const privateKey = fs.readFileSync(path.join("/etc/nginx/ssl/k-telecom.org.key"), "utf8");
-const certificate = fs.readFileSync(path.join("/etc/nginx/ssl/k-telecom.org.crt"), "utf8");
 
-const optSsl = {
-  key: privateKey,
-  cert: certificate,
- // ca: [certificate],
-  requestCert: false, // put true if you want a client certificate, tested and it works
-  rejectUnauthorized: false,
-};
-
-const https = require("https").Server(optSsl,application);
-
-
-const is = require("socket.io")(https);
-const io = require('socket.io-client');
-const ioClient = io.connect(`https://${process.env.APP_HOST}:${process.env.APP_PORT}`)
-console.log(`https://${process.env.APP_HOST}:${process.env.APP_PORT}`)
-const { db } = require('./src/db');
+if(process.env.APP_MODE){
+  const privateKey = fs.readFileSync(path.join("/etc/nginx/ssl/k-telecom.org.key"), "utf8");
+  const certificate = fs.readFileSync(path.join("/etc/nginx/ssl/k-telecom.org.crt"), "utf8");
+  
+  const optSsl = {
+    key: privateKey,
+    cert: certificate,
+   // ca: [certificate],
+    requestCert: false, // put true if you want a client certificate, tested and it works
+    rejectUnauthorized: false,
+  };
+  
+  var https = require("https").Server(optSsl,application);
+  
+  
+  var is = require("socket.io")(https);
+  var io = require('socket.io-client');
+  var ioClient = io.connect(`https://${process.env.APP_HOST}:${process.env.APP_PORT}`)
+}
+else{
+  var http = require("http").Server(application);
+  var is = require("socket.io")(http);
+  var io = require('socket.io-client');
+  var ioClient = io.connect(`http://${process.env.APP_HOST}:${process.env.APP_PORT}`)
+}
 
 const cors = require('cors');
 
@@ -61,14 +70,12 @@ const mqttClient = mqtt.connect(mqttUrl, mqttOptions);
 mqttClient.on("connect", function () {
   if (mqttClient.connected) {
     console.log("conected");
-    mqttClient.subscribe("+/+/+");  // Подпись на все топики где только 3 эллемента
+    mqttClient.subscribe("#");  // Подпись на все топики где только 3 эллемента
   } else {
     console.log("disconeted");
   }
 });
 
-const uuid = require("uuid");
-const apple = uuid.v4();
 
 is.on("connection", function (socket) {
 
@@ -102,86 +109,8 @@ is.on("connection", function (socket) {
   });
 });
 
-ioClient.on('saveToDb', async function (getedData, topic) {
-  let userId = topic[0];
-  let gatewayId = topic[1];
-  let elementId = topic[2];
-  
-  delete getedData.modeTelecom;
-
-
-  //console.log('pizdata:', getedData);
-  console.log('/' + userId + '/' + gatewayId + '/' + elementId);
-  try {
-
-    let sensor = await db.sensor.findFirst({
-      where: {
-        elementId: elementId
-      },
-      include:{
-        device:true,
-        data:{
-          take:1,
-          orderBy:[{
-            createdAt:"desc"
-          }]
-        },
-        station:true,
-        settings:{
-          include:{
-            Rooms:true
-          }
-        }
-      }
-    });
-    const dataKeys = Object.keys(getedData)
-    let dataToWrite = {}
-    dataKeys.forEach((field, i) => {
-      sensor.device.majorFields.includes(field)?dataToWrite[field] = getedData[field]:""
-    });    
-    if(!lodash.isEqual(dataToWrite, sensor.data[0].value) && !lodash.isEmpty(dataToWrite)){
-      console.log(topic)
-      console.log(dataToWrite)
-      console.log(sensor.data[0].value)
-      let newData = await db.data.create({
-        data: {
-          value: dataToWrite,
-          sensorId: sensor.id,
-        }
-      });
-      await db.sensor.update({
-        where:{
-          id: sensor.id
-        },
-        data:{
-          charge:getedData.battery || sensor.charge,
-          linkquality:getedData.linkquality || sensor.linkquality
-        }
-      })
-      if(!sensor.device.frontView.chartData){
-        const toLog = {
-          userId:     userId,
-          stationId:  sensor.stationId,
-          sensorId:   sensor.id,
-          dataId:     newData.id,
-          sensorName: sensor.settings.name,
-          roomName:   sensor.settings.Rooms.name
-      }
-        writeToLog(toLog, 4)
-      }
-      console.log(`writen\n\n`)
-    }
-    else{
-      console.log(`duplicate data\n\n`)
-    }
-
-    //console.log('data: ' + newData);
-  }
-  catch (err) {
-    console.log(err)
-  }
-
-});
+ioClient.on('saveToDb', saveToDb);
+ioClient.on('saveToDb', createNewSensor);
 
 
 mqttClient.on("message", function (topic, payload, packet) {
@@ -198,6 +127,9 @@ mqttClient.on("message", function (topic, payload, packet) {
       if (getTopic.length == 3) {
         is.emit('saveToDb', obj, getTopic)
       }
+      if(obj['type']=="device_connected"){
+        is.emit('newSensor', obj, getTopic)
+      }
     }
     let cmdData = {
       payload: obj,
@@ -213,28 +145,14 @@ mqttClient.on("message", function (topic, payload, packet) {
   }
 });
 
-async function writeToLog(data, code){
-  try{
-    const url = `http://${process.env.LOGGER_HOST || "localhost"}:${process.env.LOGGER_PORT || "5282"}/${code}` 
-    const postData = {
-      method: "POST",
-      headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-      data: data
-      })
-    }
-    await fetch(url, postData)
-    .then(console.log(`Data logged`))
-    .catch(err => {throw new Error(err)})
-  }
-  catch(err){
-    console.log(err)
-  }
-}
 
-https.listen(5002, function () {
-  console.log("Клиентский канал запущен, порт: " + 5002);
-});
+if(process.env.APP_MODE){
+  https.listen(5002, function () {
+    console.log("Клиентский канал запущен, порт: " + 5002);
+  });
+}
+else{
+  http.listen(5002, function () {
+    console.log("Клиентский канал запущен, порт: " + 5002);
+  });
+}
