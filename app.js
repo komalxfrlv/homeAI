@@ -20,14 +20,14 @@ const optSsl = {
   rejectUnauthorized: false,
 };
 
-var https = require("https").Server(optSsl,application);
+const https = require("https").Server(optSsl,application);
 
 
-var is = require("socket.io")(https);
-var io = require('socket.io-client');
+const is = require("socket.io")(https);
+const io = require('socket.io-client');
 
 //var ioClient = io.connect(`https://${process.env.APP_HOST}:${process.env.APP_PORT}`)
-var ioClient = io.connect(`https://localhost:5002`);
+var ioClient = io.connect(`https://${process.env.APP_HOST}:${process.env.APP_PORT}`)
 /*
 if(process.env.APP_MODE){
 }
