@@ -36,7 +36,7 @@ else{
   var is = require("socket.io")(http);
   var io = require('socket.io-client');
   //var ioClient = io.connect(`http://${process.env.APP_HOST}:${process.env.APP_PORT}`)
-  var ioClient = io.connect(`http://localhost:5002`)
+  var ioClient = io.connect(`http://${process.env.APP_HOST || "localhost"}:${process.env.APP_PORT || 5002}`)
 
 }
 
