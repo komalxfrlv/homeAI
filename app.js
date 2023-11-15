@@ -132,7 +132,7 @@ mqttClient.on("message", function (topic, payload, packet) {
     else {
       if (getTopic.length == 3) {
         is.emit('saveToDb', obj, getTopic)
-        console.log(obj)
+        console.log(host)
       }
       if(obj['type']=="device_connected"){
         is.emit('newSensor', obj, getTopic)
