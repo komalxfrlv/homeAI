@@ -123,7 +123,7 @@ mqttClient.on("message", function (topic, payload, packet) {
         elementID: getTopic[2]
       }
     }
-    is.to(getTopic[0]).emit("cmd", JSON.stringify(cmdData));
+    if(getTopic[3] != "set") is.to(getTopic[0]).emit("cmd", JSON.stringify(cmdData));
 
   } catch (e) {
     obj != "online" || obj != "online"?console.log(e):""
