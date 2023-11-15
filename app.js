@@ -112,7 +112,6 @@ is.on("connection", function (socket) {
 ioClient.on('saveToDb', saveToDb);
 ioClient.on('device_connected', createNewSensor);
 
-
 mqttClient.on("message", function (topic, payload, packet) {
   // Payload is Buffer
   var getTopic = topic.split("/");   //  Получаем топики
@@ -126,7 +125,8 @@ mqttClient.on("message", function (topic, payload, packet) {
     else {
       if (getTopic.length == 3) {
         is.emit('saveToDb', obj, getTopic)
-        console.log(obj)
+        console.log(obj),
+        console.log(topic)
       }
       if(obj['type']=="device_connected"){
         is.emit('newSensor', obj, getTopic)
