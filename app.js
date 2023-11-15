@@ -9,31 +9,32 @@ require('dotenv').config();
 const fs = require("fs");
 const path = require("path")
 
+const privateKey = fs.readFileSync(path.join("/etc/nginx/ssl/k-telecom.org.key"), "utf8");
+const certificate = fs.readFileSync(path.join("/etc/nginx/ssl/k-telecom.org.crt"), "utf8");
+
+const optSsl = {
+  key: privateKey,
+  cert: certificate,
+ // ca: [certificate],
+  requestCert: false, // put true if you want a client certificate, tested and it works
+  rejectUnauthorized: false,
+};
+
+var https = require("https").Server(optSsl,application);
+
+
+var is = require("socket.io")(https);
+var io = require('socket.io-client');
+var ioClient = io.connect(`https://${process.env.APP_HOST}:${process.env.APP_PORT}`)
+/*
 if(process.env.APP_MODE){
-  const privateKey = fs.readFileSync(path.join("/etc/nginx/ssl/k-telecom.org.key"), "utf8");
-  const certificate = fs.readFileSync(path.join("/etc/nginx/ssl/k-telecom.org.crt"), "utf8");
-  
-  const optSsl = {
-    key: privateKey,
-    cert: certificate,
-   // ca: [certificate],
-    requestCert: false, // put true if you want a client certificate, tested and it works
-    rejectUnauthorized: false,
-  };
-  
-  var https = require("https").Server(optSsl,application);
-  
-  
-  var is = require("socket.io")(https);
-  var io = require('socket.io-client');
-  var ioClient = io.connect(`https://${process.env.APP_HOST}:${process.env.APP_PORT}`)
 }
 else{
   var http = require("http").Server(application);
   var is = require("socket.io")(http);
   var io = require('socket.io-client');
   var ioClient = io.connect(`http://${process.env.APP_HOST}:${process.env.APP_PORT}`)
-}
+}*/
 
 const cors = require('cors');
 
