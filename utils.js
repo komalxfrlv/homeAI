@@ -115,9 +115,9 @@ async function createNewSensor(getedData, topic){
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-            payload:{
+            payload: JSON.stringify({
               userId:station.userId
-            },
+            }),
           body: JSON.stringify({
             sensor:{
                 mac:getedData.meta['modelID'],
