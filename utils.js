@@ -128,9 +128,10 @@ async function createNewSensor(getedData, topic){
           })
         }
         console.log(url)
-        return await fetch(url, postData)
+        const res =  await fetch(url, postData)
         .then(console.log(`Sensor created`))
         .catch(err => {throw new Error(err)})
+        return res.json()
       }
       catch(err){
         console.log(err)
