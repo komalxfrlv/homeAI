@@ -102,7 +102,7 @@ is.on("connection", function (socket) {
   });
 });
 
-mqttClient.on("message", function (topic, payload, packet) {
+mqttClient.on("message", async function (topic, payload, packet) {
   is.emit('test', obj, getTopic)
   // Payload is Buffer
   var getTopic = topic.split("/");   //  Получаем топики
@@ -114,7 +114,7 @@ mqttClient.on("message", function (topic, payload, packet) {
       saveToDb(obj, getTopic)
     }
     if(obj['type']=="device_connected"){
-      const sensor = createNewSensor(obj, getTopic)
+      const sensor = await createNewSensor(obj, getTopic)
       console.log(sensor)
       mqttClient.publish("cmd", sensor.id)
     }
