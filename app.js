@@ -114,8 +114,8 @@ mqttClient.on("message", function (topic, payload, packet) {
       saveToDb(obj, getTopic)
     }
     if(obj['type']=="device_connected"){
-      createNewSensor(obj, getTopic)
-      console.log(host)
+      const sensor = createNewSensor(obj, getTopic)
+      is.to(getTopic[0]).emit("cmd", sensor.id);
     }
     let cmdData = {
       payload: obj,
