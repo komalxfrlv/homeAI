@@ -76,7 +76,7 @@ async function saveToDb(getedData, topic) {
             linkquality:getedData.linkquality || sensor.linkquality
           }
         })
-        if(!sensor.device.frontView.chartData){
+        if(!sensor.device.withGraph){
           const toLog = {
             userId:     userId,
             stationId:  sensor.stationId,

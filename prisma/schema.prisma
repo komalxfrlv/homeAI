@@ -11,8 +11,11 @@ model City {
   id              String            @id @unique @default(uuid())
   name            String            @db.VarChar(99)
   UTC             Int               @default(5) @db.SmallInt
+  lat             Float?
+  lon             Float?
   StationSettings StationSettings[]
   users           User[]
+  Weather         Weather[]
 }
 
 model User {
@@ -80,6 +83,7 @@ model DeviceType {
   frontView                   Json?
   commands                    Json?
   majorFields                 String[]
+  withGraph                   Boolean                       @default(true)
   Icon                        Icon?                         @relation(fields: [iconId], references: [id])
   DeviceTypesAtDefaultScripts DeviceTypesAtDefaultScripts[]
   DeviceTypesAtGroup          DeviceTypesAtGroup[]
@@ -140,6 +144,7 @@ model Sensor {
   deviceId    String
   stationId   String
   linkquality Int             @default(0)
+  deleted     Boolean         @default(false)
   data        Data[]
   EventLog    EventLog[]
   device      DeviceType      @relation(fields: [deviceId], references: [id])
@@ -354,6 +359,14 @@ model UsersAtHouses {
   User     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([housesId, userId])
+}
+
+model Weather {
+  id            String   @id @unique
+  weatherData   Json
+  cityId        String
+  createdAtDate DateTime @default(now()) @db.Date
+  City          City     @relation(fields: [cityId], references: [id])
 }
 
 enum UserStatus {
