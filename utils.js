@@ -60,7 +60,7 @@ async function saveToDb(getedData, topic) {
       dataKeys.forEach((field, i) => {
         sensor.device.majorFields.includes(field)?dataToWrite[field] = getedData[field]:""
       });    
-      if(lodash.isEmpty(sensor.data[0]) || !lodash.isEqual(dataToWrite, sensor.data[0].value) && !lodash.isEmpty(dataToWrite)){
+      if(!lodash.isEmpty(sensor) &&(lodash.isEmpty(sensor.data[0]) || !lodash.isEqual(dataToWrite, sensor.data[0].value) && !lodash.isEmpty(dataToWrite))){
         let newData = await db.data.create({
           data: {
             value: dataToWrite,
