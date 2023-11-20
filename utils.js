@@ -15,7 +15,7 @@ async function writeToLog(data, code){
         })
       }
       await fetch(url, postData)
-      .then(console.log(`Logged`))
+      .then(console.log(`Logged with code ${code}`))
       .catch(err => {throw new Error(err)})
     }
     catch(err){
@@ -57,10 +57,10 @@ async function saveToDb(getedData, topic) {
       });
       const dataKeys = Object.keys(getedData)
       let dataToWrite = {}
-      dataKeys.forEach((field, i) => {
+      dataKeys.forEach((field) => {
         sensor.device.majorFields.includes(field)?dataToWrite[field] = getedData[field]:""
-      });    
-      if(!lodash.isEmpty(sensor) &&(lodash.isEmpty(sensor.data[0]) || !lodash.isEqual(dataToWrite, sensor.data[0].value) && !lodash.isEmpty(dataToWrite))){
+      });
+      if(!lodash.isEmpty(sensor) && (lodash.isEmpty(sensor.data[0]) || !lodash.isEqual(dataToWrite, sensor.data[0].value) && !lodash.isEmpty(dataToWrite))){
         let newData = await db.data.create({
           data: {
             value: dataToWrite,
@@ -76,23 +76,25 @@ async function saveToDb(getedData, topic) {
             linkquality:getedData.linkquality || sensor.linkquality
           }
         })
-        if(!sensor.device.withGraph){
-          const toLog = {
-            userId:     userId,
-            stationId:  sensor.stationId,
-            sensorId:   sensor.id,
-            dataId:     newData.id,
-            sensorName: sensor.settings.name,
-            roomName:   sensor.settings.Rooms.name
-        }
-          writeToLog(toLog, 4)
-        }
+        const logFields = Object.keys(sensor.device.fieldsToLog)
+        logFields.forEach(async field =>{
+          if(!lodash.isEqual(getedData[field], sensor.data[0][field])){
+            const toLog = {
+              userId:     userId,
+              stationId:  sensor.stationId,
+              sensorId:   sensor.id,
+              dataId:     newData.id,
+              sensorName: sensor.settings.name,
+              roomName:   sensor.settings.Rooms.name
+            }
+            writeToLog(toLog, sensor.device.fieldsToLog[field])
+          }
+        })
         console.log(`writen\n\n`)
-      }
-      else{
-        console.log(`duplicate data\n\n`)
-      }
-  
+        }
+        else{
+          console.log(`duplicate data\n\n`)
+        }
       //console.log('data: ' + newData);
     }
     catch (err) {

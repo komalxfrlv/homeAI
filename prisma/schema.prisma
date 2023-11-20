@@ -83,7 +83,7 @@ model DeviceType {
   frontView                   Json?
   commands                    Json?
   majorFields                 String[]
-  withGraph                   Boolean                       @default(true)
+  fieldsToLog                 Json?
   Icon                        Icon?                         @relation(fields: [iconId], references: [id])
   DeviceTypesAtDefaultScripts DeviceTypesAtDefaultScripts[]
   DeviceTypesAtGroup          DeviceTypesAtGroup[]
