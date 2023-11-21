@@ -61,12 +61,14 @@ async function saveToDb(getedData, topic) {
         sensor.device.majorFields.includes(field)?dataToWrite[field] = getedData[field]:""
       });
       if(!lodash.isEmpty(sensor) && (lodash.isEmpty(sensor.data[0]) || !lodash.isEqual(dataToWrite, sensor.data[0].value) && !lodash.isEmpty(dataToWrite))){
+        
         let newData = await db.data.create({
           data: {
             value: dataToWrite,
             sensorId: sensor.id,
           }
         });
+
         await db.sensor.update({
           where:{
             id: sensor.id
@@ -78,7 +80,9 @@ async function saveToDb(getedData, topic) {
         })
         const logFields = Object.keys(sensor.device.fieldsToLog)
         logFields.forEach(async field =>{
-          if(!lodash.isEqual(getedData[field], sensor.data[0][field])){
+          const newValue = getedData[field]
+          const lastValue = sensor.data[0][field]
+          if(!lodash.isEqual(newValue, lastValue)){
             const toLog = {
               userId:     userId,
               stationId:  sensor.stationId,
@@ -87,7 +91,7 @@ async function saveToDb(getedData, topic) {
               sensorName: sensor.settings.name,
               roomName:   sensor.settings.Rooms.name
             }
-            writeToLog(toLog, sensor.device.fieldsToLog[field])
+            writeToLog(toLog, sensor.device.fieldsToLog[field])//[String(newValue)])
           }
         })
         console.log(`writen\n\n`)
