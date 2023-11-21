@@ -91,7 +91,12 @@ async function saveToDb(getedData, topic) {
               sensorName: sensor.settings.name,
               roomName:   sensor.settings.Rooms.name
             }
-            writeToLog(toLog, sensor.device.fieldsToLog[field][String(newValue)])
+            if(lodash.isNumber(sensor.device.fieldsToLog[field])){
+              writeToLog(toLog, sensor.device.fieldsToLog[field])
+            }
+            else{
+              writeToLog(toLog, sensor.device.fieldsToLog[field][String(newValue)])
+            }
           }
         })
         console.log(`writen\n\n`)
