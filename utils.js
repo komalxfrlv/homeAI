@@ -93,7 +93,8 @@ async function saveToDb(getedData, topic) {
         console.log(`writen\n\n`)
         }
         else{
-          console.log(`duplicate data\n${dataToWrite}`)
+          console.log(`duplicate data`)
+          console.log(dataToWrite)
         }
       //console.log('data: ' + newData);
     }
