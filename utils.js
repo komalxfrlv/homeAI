@@ -91,7 +91,7 @@ async function saveToDb(getedData, topic) {
               sensorName: sensor.settings.name,
               roomName:   sensor.settings.Rooms.name
             }
-            writeToLog(toLog, sensor.device.fieldsToLog[field])//[String(newValue)])
+            writeToLog(toLog, sensor.device.fieldsToLog[field][String(newValue)])
           }
         })
         console.log(`writen\n\n`)
