@@ -115,7 +115,7 @@ mqttClient.on("message", async function (topic, payload, packet) {
     }
     if(obj['type']=="device_connected"){
       const sensor = await createNewSensor(obj, getTopic)
-      //mqttClient.publish("cmd", sensor.id,)
+      mqttClient.publish("cmd", sensor.id,)
       console.log(sensor.id)
       is.to(getTopic[0]).emit("cmd", sensor.id);
     }
