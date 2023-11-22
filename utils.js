@@ -84,6 +84,7 @@ async function saveToDb(getedData, topic) {
           const lastValue = sensor.data[0][field]
           
           if(!lodash.isEqual(newValue, lastValue)){
+            let code
             const toLog = {
               userId:     userId,
               stationId:  sensor.stationId,
@@ -95,6 +96,7 @@ async function saveToDb(getedData, topic) {
             //console.dir(sensor.settings.options)
             //console.log(field)
             console.log(logFields)
+            console.log(Object.keys(logFields[field]).includes("MTMax"))
             if(logFields[field] && Object.keys(logFields[field]).includes("MTMax")){
               const maxValue = sensor.settings.options.max[field]
               const minValue = sensor.settings.options.min[field]
@@ -104,26 +106,29 @@ async function saveToDb(getedData, topic) {
               (minValue<newData.value[field] && maxValue>newData.value[field])
               console.log(sensor.device.fieldsToLog[field])
               if(lastValue < maxValue && maxValue < newData.value[field]){
-                writeToLog(toLog, sensor.device.fieldsToLog[field]["MTMax"])
+                code = sensor.device.fieldsToLog[field]["MTMax"]
                 console.log("MTMax")
               } 
               if(lastValue > minValue && minValue > newData.value[field]){
-                writeToLog(toLog, sensor.device.fieldsToLog[field]["LTMin"])
+                code = sensor.device.fieldsToLog[field]["LTMin"]
                 console.log("MTMin")
               }
               if(backToNormal){
                 console.log("BTN")
-                writeToLog(toLog, sensor.device.fieldsToLog[field]["BTN"])
+                code = sensor.device.fieldsToLog[field]["BTN"]
                }     
             }
             else{
               if(lodash.isNumber(sensor.device.fieldsToLog[field])){
-                writeToLog(toLog, sensor.device.fieldsToLog[field])
+                console.log('number')
+                code = sensor.device.fieldsToLog[field]
               }
               else{
-                writeToLog(toLog, sensor.device.fieldsToLog[field][String(newValue)])
+                console.log('object with field')
+                code = sensor.device.fieldsToLog[field][String(newValue)]
               }
             }
+            writeToLog(toLog, code)
           }
         })
         console.log(`writen\n\n`)
