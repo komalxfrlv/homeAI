@@ -82,6 +82,10 @@ async function saveToDb(getedData, topic) {
         logFields.forEach(async field =>{
           const newValue = getedData[field]
           const lastValue = sensor.data[0][field]
+          
+          const backToNormal = (lastValue < minValue || lastValue > maxValue) &&
+          (minValue<newData.value[field] && maxValue>newData.value[field])
+          
           if(!lodash.isEqual(newValue, lastValue)){
             const toLog = {
               userId:     userId,
@@ -91,11 +95,26 @@ async function saveToDb(getedData, topic) {
               sensorName: sensor.settings.name,
               roomName:   sensor.settings.Rooms.name
             }
-            if(lodash.isNumber(sensor.device.fieldsToLog[field])){
-              writeToLog(toLog, sensor.device.fieldsToLog[field])
+            if(Object.keys(logFields[field]).includes("MTMax")){
+              const maxValue = sensor.settings.options.max[field]
+              const minValue = sensor.settings.options.min[field]
+              if(lastValue < maxValue && maxValue < newData.value[field]){
+                writeToLog(toLog, logFields["MTMax"])
+              } 
+              if(lastValue > minValue && minValue > newData.value[field]){
+                writeToLog(toLog, logFields["MTMin"])
+              }
+              if(backToNormal){
+                writeToLog(toLog, logFields["BTN"])
+               }     
             }
             else{
-              writeToLog(toLog, sensor.device.fieldsToLog[field][String(newValue)])
+              if(lodash.isNumber(logFields[field])){
+                writeToLog(toLog, logFields[field])
+              }
+              else{
+                writeToLog(toLog, logFields[field][String(newValue)])
+              }
             }
           }
         })
@@ -103,7 +122,6 @@ async function saveToDb(getedData, topic) {
         }
         else{
           console.log(`duplicate data`)
-          console.log(dataToWrite)
         }
       //console.log('data: ' + newData);
     }
