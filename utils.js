@@ -102,7 +102,7 @@ async function saveToDb(getedData, topic) {
               const backToNormal = (lastValue < minValue || lastValue > maxValue) &&
               (minValue<newData.value[field] && maxValue>newData.value[field])
               console.log(`geted value of ${field}: ${newData.value[field]}`)
-              console.log(`backToNormal? ${backToNormal}`)
+              console.log(sensor.data[0])
               console.log(sensor.data[0][field])
               console.log(`maxValue < newData.value[field]? ${maxValue < newData.value[field]}`)
               if(lastValue < maxValue && maxValue < newData.value[field]){
