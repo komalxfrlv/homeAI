@@ -105,11 +105,14 @@ async function saveToDb(getedData, topic) {
               console.log(sensor.device.fieldsToLog[field])
               if(lastValue < maxValue && maxValue < newData.value[field]){
                 writeToLog(toLog, sensor.device.fieldsToLog[field]["MTMax"])
+                console.log("MTMax")
               } 
               if(lastValue > minValue && minValue > newData.value[field]){
                 writeToLog(toLog, sensor.device.fieldsToLog[field]["LTMin"])
+                console.log("MTMin")
               }
               if(backToNormal){
+                console.log("BTN")
                 writeToLog(toLog, sensor.device.fieldsToLog[field]["BTN"])
                }     
             }
