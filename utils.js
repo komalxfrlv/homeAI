@@ -100,21 +100,21 @@ async function saveToDb(getedData, topic) {
               (minValue<newData.value[field] && maxValue>newData.value[field])
 
               if(lastValue < maxValue && maxValue < newData.value[field]){
-                writeToLog(toLog, logFields["MTMax"])
+                writeToLog(toLog, sensor.device.fieldsToLog["MTMax"])
               } 
               if(lastValue > minValue && minValue > newData.value[field]){
-                writeToLog(toLog, logFields["MTMin"])
+                writeToLog(toLog, sensor.device.fieldsToLog["MTMin"])
               }
               if(backToNormal){
-                writeToLog(toLog, logFields["BTN"])
+                writeToLog(toLog, sensor.device.fieldsToLog["BTN"])
                }     
             }
             else{
-              if(lodash.isNumber(logFields[field])){
-                writeToLog(toLog, logFields[field])
+              if(lodash.isNumber(sensor.device.fieldsToLog[field])){
+                writeToLog(toLog, sensor.device.fieldsToLog[field])
               }
               else{
-                writeToLog(toLog, logFields[field][String(newValue)])
+                writeToLog(toLog, sensor.device.fieldsToLog[field][String(newValue)])
               }
             }
           }
