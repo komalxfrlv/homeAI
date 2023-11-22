@@ -79,7 +79,7 @@ async function saveToDb(getedData, topic) {
           }
         })
         const logFields = Object.keys(sensor.device.fieldsToLog)
-        logFields.forEach(async field =>{
+        logFields.forEach(field =>{
           const newValue = getedData[field]
           const lastValue = sensor.data[0].value[field]
           console.log(field)
