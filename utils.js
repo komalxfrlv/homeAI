@@ -101,10 +101,10 @@ async function saveToDb(getedData, topic) {
 
               const backToNormal = (lastValue < minValue || lastValue > maxValue) &&
               (minValue<newData.value[field] && maxValue>newData.value[field])
-              console.log(`${field}: ${maxValue}`)
-              console.log(`${field}: ${minValue}`)
               console.log(`geted value of ${field}: ${newData.value[field]}`)
               console.log(`backToNormal? ${backToNormal}`)
+              console.log(`lastValue < maxValue? ${lastValue < maxValue}`)
+              console.log(`maxValue < newData.value[field]? ${maxValue < newData.value[field]}`)
               if(lastValue < maxValue && maxValue < newData.value[field]){
                 code = sensor.device.fieldsToLog[field]["MTMax"]
                 console.log("MTMax")
