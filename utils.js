@@ -81,7 +81,7 @@ async function saveToDb(getedData, topic) {
         const logFields = Object.keys(sensor.device.fieldsToLog)
         logFields.forEach(async field =>{
           const newValue = getedData[field]
-          const lastValue = sensor.data[0][field]
+          const lastValue = sensor.data[0].value[field]
           
           if(!lodash.isEqual(newValue, lastValue)){
             let code
@@ -102,8 +102,7 @@ async function saveToDb(getedData, topic) {
               const backToNormal = (lastValue < minValue || lastValue > maxValue) &&
               (minValue<newData.value[field] && maxValue>newData.value[field])
               console.log(`geted value of ${field}: ${newData.value[field]}`)
-              console.log(sensor.data[0])
-              console.log(sensor.data[0][field])
+              console.log(lastValue)
               console.log(`maxValue < newData.value[field]? ${maxValue < newData.value[field]}`)
               if(lastValue < maxValue && maxValue < newData.value[field]){
                 code = sensor.device.fieldsToLog[field]["MTMax"]
