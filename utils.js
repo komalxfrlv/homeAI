@@ -82,7 +82,7 @@ async function saveToDb(getedData, topic) {
         logFields.forEach(async field =>{
           const newValue = getedData[field]
           const lastValue = sensor.data[0].value[field]
-          
+          console.log(field)
           if(!lodash.isEqual(newValue, lastValue)){
             let code
             const toLog = {
@@ -101,16 +101,13 @@ async function saveToDb(getedData, topic) {
 
               const backToNormal = (lastValue < minValue || lastValue > maxValue) &&
               (minValue<newData.value[field] && maxValue>newData.value[field])
-              console.log(`geted value of ${field}: ${newData.value[field]}`)
-              console.log(lastValue)
-              console.log(`maxValue < newData.value[field]? ${maxValue < newData.value[field]}`)
               if(lastValue < maxValue && maxValue < newData.value[field]){
                 code = sensor.device.fieldsToLog[field]["MTMax"]
                 console.log("MTMax")
               } 
               if(lastValue > minValue && minValue > newData.value[field]){
                 code = sensor.device.fieldsToLog[field]["LTMin"]
-                console.log("MTMin")
+                console.log("LTMin")
               }
               if(backToNormal){
                 console.log("BTN")
@@ -127,8 +124,7 @@ async function saveToDb(getedData, topic) {
                 code = sensor.device.fieldsToLog[field][String(newValue)]
               }
             }
-            console.log(`log code: ${code}`)
-            code  ? writeToLog(toLog, code):""
+            code  ? writeToLog(toLog, code):console.log('data must been logged, but havent logCode')
           }
         })
         console.log(`writen\n\n`)
