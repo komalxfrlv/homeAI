@@ -128,6 +128,7 @@ async function saveToDb(getedData, topic) {
                 code = sensor.device.fieldsToLog[field][String(newValue)]
               }
             }
+            console.log(`log code: ${code}`)
             code  ? writeToLog(toLog, code):""
           }
         })
