@@ -93,8 +93,8 @@ async function saveToDb(getedData, topic) {
               roomName:   sensor.settings.Rooms.name
             }
             console.dir(sensor.options)
-            console.log(sensor.settings.options.max[field])
-            console.log(field)
+            //console.log(sensor.settings.options.max[field])
+            //console.log(field)
             if(logFields[field] && Object.keys(logFields[field]).includes("MTMax")){
               const maxValue = sensor.settings.options.max[field]
               const minValue = sensor.settings.options.min[field]
