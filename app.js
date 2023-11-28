@@ -110,6 +110,13 @@ mqttClient.on("message", async function (topic, payload, packet) {
   try {
     var obj = JSON.parse(payload.toString())
     obj.linkquality? obj.linkquality = Math.round((obj.linkquality/255)*100) :""
+    let cmdData = {
+      payload: obj,
+      topic:{
+        gatewayId: getTopic[1],
+        elementID: getTopic[2]
+      }
+    }
     if(getTopic[3] != "set") is.to(getTopic[0]).emit("cmd", JSON.stringify(cmdData));
     if (getTopic[3] != "set" && (getTopic.length == 3 || obj['mT'])) {
       saveToDb(obj, getTopic)
@@ -122,13 +129,6 @@ mqttClient.on("message", async function (topic, payload, packet) {
         sensorId: sensor.id
         }
       is.to(getTopic[0]).emit("cmd", JSON.stringify(message));
-    }
-    let cmdData = {
-      payload: obj,
-      topic:{
-        gatewayId: getTopic[1],
-        elementID: getTopic[2]
-      }
     }
 
   } catch (e) {
