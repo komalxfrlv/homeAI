@@ -110,7 +110,8 @@ mqttClient.on("message", async function (topic, payload, packet) {
   try {
     var obj = JSON.parse(payload.toString())
     obj.linkquality? obj.linkquality = Math.round((obj.linkquality/255)*100) :""
-    if (getTopic.length == 3 || obj['mT']) {
+    if(getTopic[3] != "set") is.to(getTopic[0]).emit("cmd", JSON.stringify(cmdData));
+    if (getTopic[3] != "set" && (getTopic.length == 3 || obj['mT'])) {
       saveToDb(obj, getTopic)
     }
     if(obj['type']=="device_connected"){
@@ -129,7 +130,6 @@ mqttClient.on("message", async function (topic, payload, packet) {
         elementID: getTopic[2]
       }
     }
-    if(getTopic[3] != "set") is.to(getTopic[0]).emit("cmd", JSON.stringify(cmdData));
 
   } catch (e) {
     obj != "online" || obj != "online"?console.log(e):""
