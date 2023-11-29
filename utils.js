@@ -78,7 +78,7 @@ async function saveToDb(getedData, topic) {
             linkquality:getedData.linkquality || sensor.linkquality
           }
         })
-        console.log(`Data writen, sensor updated\n\n`)
+        console.log(`Data writen, sensor ${elementId} updated\n\n`)
         const logFields = Object.keys(sensor.device.fieldsToLog)
         logFields.forEach(field =>{
           const newValue = getedData[field]
