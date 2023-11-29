@@ -86,6 +86,8 @@ async function saveToDb(getedData, topic) {
           console.log(field)
           console.log(newValue)
           console.log(lastValue)
+          console.log(getedData)
+          console.log(sensor.data[0].value)
           if(!lodash.isEqual(newValue, lastValue)){
             let code
             const toLog = {
