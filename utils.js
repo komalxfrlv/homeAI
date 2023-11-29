@@ -98,29 +98,24 @@ async function saveToDb(getedData, topic) {
             if(Object.keys(sensor.device.fieldsToLog[field]).includes("MTMax")){
               const maxValue = sensor.settings.options.max[field]
               const minValue = sensor.settings.options.min[field]
-
+              const newValue = newData.value[field]
               const backToNormal = (lastValue < minValue || lastValue > maxValue) &&
-              (minValue<newData.value[field] && maxValue>newData.value[field])
-              if(lastValue < maxValue && maxValue < newData.value[field]){
+              (minValue<newValue && maxValue>newValue)
+              if(lastValue < maxValue && maxValue < newValue){
                 code = sensor.device.fieldsToLog[field]["MTMax"]
-                console.log("MTMax")
               } 
-              if(lastValue > minValue && minValue > newData.value[field]){
+              if(lastValue > minValue && minValue > newValue){
                 code = sensor.device.fieldsToLog[field]["LTMin"]
-                console.log("LTMin")
               }
               if(backToNormal){
-                console.log("BTN")
                 code = sensor.device.fieldsToLog[field]["BTN"]
                }     
             }
             else{
               if(lodash.isNumber(sensor.device.fieldsToLog[field])){
-                console.log('number')
                 code = sensor.device.fieldsToLog[field]
               }
               else{
-                console.log('object with field')
                 code = sensor.device.fieldsToLog[field][String(newValue)]
               }
             }
