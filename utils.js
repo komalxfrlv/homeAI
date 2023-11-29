@@ -78,16 +78,12 @@ async function saveToDb(getedData, topic) {
             linkquality:getedData.linkquality || sensor.linkquality
           }
         })
+        console.log(`Data writen, sensor updated\n\n`)
         const logFields = Object.keys(sensor.device.fieldsToLog)
         console.log(await newData)
         logFields.forEach(field =>{
           const newValue = getedData[field]
           const lastValue = sensor.data[0].value[field]
-          console.log(field)
-          console.log(newValue)
-          console.log(lastValue)
-          console.log(getedData)
-          console.log(sensor.data[0].value)
           if(!lodash.isEqual(newValue, lastValue)){
             let code
             const toLog = {
@@ -127,7 +123,6 @@ async function saveToDb(getedData, topic) {
             code  ? writeToLog(toLog, code):console.log('data must been logged, but havent logCode')
           }
         })
-        console.log(`writen\n\n`)
         }
         else{
           console.log(`duplicate data`)
