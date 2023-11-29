@@ -118,7 +118,7 @@ mqttClient.on("message", async function (topic, payload, packet) {
       }
     }
     if(getTopic[3] != "set") is.to(getTopic[0]).emit("cmd", JSON.stringify(cmdData));
-    if (getTopic[3] != "set" && (getTopic.length == 3 || obj['mT'])) {
+    if (getTopic.length == 3 || obj['mT']) {
       await saveToDb(obj, getTopic)
     }
     if(obj['type']=="device_connected"){
