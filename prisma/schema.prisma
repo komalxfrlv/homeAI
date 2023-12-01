@@ -45,6 +45,7 @@ model User {
   permissionsReceived Json?
   contracts           Contract[]
   EventLog            EventLog[]
+  FeedbackReqorts     FeedbackReqorts[]
   Icon                Icon[]
   metrics             Metric[]
   refreshTokens       RefreshToken[]
@@ -84,6 +85,7 @@ model DeviceType {
   commands                    Json?
   majorFields                 String[]
   fieldsToLog                 Json?
+  firstName                   String                        @default("Новый датчик")
   Icon                        Icon?                         @relation(fields: [iconId], references: [id])
   DeviceTypesAtDefaultScripts DeviceTypesAtDefaultScripts[]
   DeviceTypesAtGroup          DeviceTypesAtGroup[]
@@ -168,6 +170,8 @@ model SensorSettings {
   versionId  String
   roomsId    String?
   iconId     String?
+  sendLogs   Boolean   @default(true)
+  sendPushes Boolean   @default(true)
   Icon       Icon?     @relation(fields: [iconId], references: [id])
   Rooms      Rooms?    @relation(fields: [roomsId], references: [id], onDelete: Cascade)
   sensor     Sensor    @relation(fields: [sensorId], references: [id], onDelete: Cascade)
@@ -250,6 +254,7 @@ model DefaultScripts {
   id                          String                        @id @unique
   script                      Json
   description                 String?
+  name                        String?
   DeviceTypesAtDefaultScripts DeviceTypesAtDefaultScripts[]
 }
 
@@ -270,6 +275,7 @@ model EventLog {
   shelldueId String?
   createdAt  DateTime  @default(now())
   message    String?   @db.VarChar(4096)
+  visible    Boolean?  @default(true)
   EventCode  EventCode @relation(fields: [codeId], references: [id], onDelete: Cascade)
   Data       Data?     @relation(fields: [dataId], references: [id], onDelete: Cascade)
   Sensor     Sensor?   @relation(fields: [sensorId], references: [id], onDelete: Cascade)
@@ -367,6 +373,14 @@ model Weather {
   cityId        String
   createdAtDate DateTime @default(now()) @db.Date
   City          City     @relation(fields: [cityId], references: [id])
+}
+
+model FeedbackReqorts {
+  id      String @id @unique
+  title   String
+  message String
+  userId  String
+  User    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum UserStatus {

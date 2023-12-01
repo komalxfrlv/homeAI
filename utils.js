@@ -85,16 +85,7 @@ async function saveToDb(getedData, topic) {
           const lastValue = sensor.data[0].value[field]
           if(!lodash.isEqual(newValue, lastValue)){
             let code
-            const toLog = {
-              userId:     userId,
-              stationId:  sensor.stationId,
-              sensorId:   sensor.id,
-              dataId:     newData.id,
-              sensorName: sensor.settings.name,
-              roomName:   sensor.settings.Rooms.name
-            }
-            //console.dir(sensor.settings.options)
-            //console.log(field)
+            let sendPush = false
             if(Object.keys(sensor.device.fieldsToLog[field]).includes("MTMax")){
               const maxValue = sensor.settings.options.max[field]
               const minValue = sensor.settings.options.min[field]
@@ -103,21 +94,36 @@ async function saveToDb(getedData, topic) {
               (minValue<newValue && maxValue>newValue)
               if(lastValue < maxValue && maxValue < newValue){
                 code = sensor.device.fieldsToLog[field]["MTMax"]
+                sendPush = true
               } 
               if(lastValue > minValue && minValue > newValue){
                 code = sensor.device.fieldsToLog[field]["LTMin"]
+                sendPush = true
               }
               if(backToNormal){
                 code = sensor.device.fieldsToLog[field]["BTN"]
-               }     
+                sendPush = true 
+              }     
             }
             else{
               if(lodash.isNumber(sensor.device.fieldsToLog[field])){
                 code = sensor.device.fieldsToLog[field]
+                sendPush = true
               }
               else{
                 code = sensor.device.fieldsToLog[field][String(newValue)]
+                sendPush = true
               }
+            }
+            const toLog = {
+              userId:     userId,
+              stationId:  sensor.stationId,
+              sensorId:   sensor.id,
+              dataId:     newData.id,
+              sensorName: sensor.settings.name,
+              roomName:   sensor.settings.Rooms.name,
+              sendPush:   sendPush && sensor.settings.setPush,
+              visible:    sensor.settings.sendLogs
             }
             code  ? writeToLog(toLog, code):console.log('data must been logged, but havent logCode')
           }
