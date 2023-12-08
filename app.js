@@ -53,7 +53,7 @@ const mqttOptions = {
   clean: true,
   connectTimeout: 1000,
   // Authentication
-  clientId: Math.random().Math.floor(),
+  clientId: Math.random(),
   username: process.env.MQTT_USERNAME,
   password: process.env.MQTT_PASSWORD,
 };
