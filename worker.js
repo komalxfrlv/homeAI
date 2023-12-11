@@ -1,7 +1,8 @@
-const {workerData, kill} = require('node:worker_threads')
-
-async function workWithData(){
-    const parsedData = JSON.parse(workerData)
+const {parentPort} = require('node:worker_threads')
+console.log(parentPort)
+const {is} = require("./app")
+async function workWithData(message){
+    const parsedData = JSON.parse(message)
     console.log(parsedData)
     var getTopic = parsedData.topic.split("/");   //  Получаем топики
       try {
@@ -20,7 +21,6 @@ async function workWithData(){
         }
         if(obj['type']=="device_connected"){
           const sensor = await createNewSensor(obj, getTopic)
-          //mqttClient.publish("cmd", sensor.id,)
           const message = {
             type:"device_created",
             sensorId: sensor.id
@@ -33,7 +33,7 @@ async function workWithData(){
         obj != "online" || obj != "online"?console.log(e):""
       }
 }
-workWithData().then(()=>{
-    kill
+
+parentPort.on('message', msg =>{
+    workWithData(msg)
 })
-  

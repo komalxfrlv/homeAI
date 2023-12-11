@@ -1,6 +1,5 @@
 const express = require('express');
 const wt = require('node:worker_threads')
-const numCPUs = require('node:os').availableParallelism();
 const application = express();
 const { saveToDb,
         createNewSensor} = require('./utils')
@@ -11,6 +10,8 @@ const path = require("path")
 var io = require('socket.io-client');
 var host = `${process.env.APP_HOST || "localhost"}:${process.env.APP_PORT || 5002}`
 
+var workerList = []
+var balancer = 0
 if(process.env.APP_MODE){
   const privateKey = fs.readFileSync(path.join("/etc/nginx/ssl/k-telecom.org.key"), "utf8");
   const certificate = fs.readFileSync(path.join("/etc/nginx/ssl/k-telecom.org.crt"), "utf8");
@@ -21,11 +22,21 @@ if(process.env.APP_MODE){
   var https = require("https").Server(optSsl,application);
   var is = require("socket.io")(https);
   host = 'https://'+host
+  for (let i = 0; i < 3; i++) {
+    workerList.push(new wt.Worker('./worker.js',{
+      parentPort:5111
+    }))
+  }
 }
 else{
   var http = require("http").Server(application);
   var is = require("socket.io")(http);
   host = 'http://'+host
+  for (let i = 0; i < 3; i++) {    
+    workerList.push(new wt.Worker('./worker.js',{
+    parentPort:5111
+  }))
+  }
 }
 
 //var ioClient = io.connect(host)
@@ -108,9 +119,8 @@ mqttClient.on("message", async function (topic, payload) {
     topic : topic,
     payload: payload.toString()
   }
-  const worker = new wt.Worker('./worker.js',{
-    workerData: JSON.stringify(forWorkerData)
-  })
+  workerList[balancer].postMessage(JSON.stringify(forWorkerData))
+  balancer==workerList.length-1 ? balancer=0:balancer+=1
   //is.emit('test', obj, getTopic)
   // Payload is Buffer
   
@@ -126,4 +136,8 @@ else{
   http.listen(5002, function () {
     console.log("Клиентский канал запущен, порт: " + 5002);
   });
+}
+
+module.exports = {
+  is
 }
