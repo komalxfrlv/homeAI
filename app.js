@@ -1,10 +1,11 @@
 const express = require('express');
+const wt = require('node:worker_threads')
+const numCPUs = require('node:os').availableParallelism();
 const application = express();
 const { saveToDb,
         createNewSensor} = require('./utils')
 const mqtt = require("mqtt");
 require('dotenv').config();
-
 const fs = require("fs");
 const path = require("path")
 var io = require('socket.io-client');
@@ -27,7 +28,7 @@ else{
   host = 'http://'+host
 }
 
-var ioClient = io.connect(host)
+//var ioClient = io.connect(host)
 const cors = require('cors');
 
 const corsOptions = {
@@ -102,38 +103,17 @@ is.on("connection", function (socket) {
   });
 });
 
-mqttClient.on("message", async function (topic, payload, packet) {
+mqttClient.on("message", async function (topic, payload) {
+  const forWorkerData = {
+    topic : topic,
+    payload: payload.toString()
+  }
+  const worker = new wt.Worker('./worker.js',{
+    workerData: JSON.stringify(forWorkerData)
+  })
   //is.emit('test', obj, getTopic)
   // Payload is Buffer
-  var getTopic = topic.split("/");   //  Получаем топики
   
-  try {
-    var obj = JSON.parse(payload.toString())
-    obj.linkquality? obj.linkquality = Math.round((obj.linkquality/255)*100) :""
-    let cmdData = {
-      payload: obj,
-      topic:{
-        gatewayId: getTopic[1],
-        elementID: getTopic[2]
-      }
-    }
-    if(getTopic[3] != "set") is.to(getTopic[0]).emit("cmd", JSON.stringify(cmdData));
-    if (getTopic.length == 3 || obj['mT']) {
-      await saveToDb(obj, getTopic)
-    }
-    if(obj['type']=="device_connected"){
-      const sensor = await createNewSensor(obj, getTopic)
-      //mqttClient.publish("cmd", sensor.id,)
-      const message = {
-        type:"device_created",
-        sensorId: sensor.id
-        }
-      is.to(getTopic[0]).emit("cmd", JSON.stringify(message));
-    }
-
-  } catch (e) {
-    obj != "online" || obj != "online"?console.log(e):""
-  }
 });
 
 
