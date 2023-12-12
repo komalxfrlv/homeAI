@@ -1,17 +1,14 @@
 const express = require('express');
-const wt = require('node:worker_threads')
 const application = express();
 const { saveToDb,
         createNewSensor} = require('./utils')
 const mqtt = require("mqtt");
 require('dotenv').config();
+
 const fs = require("fs");
 const path = require("path")
 var io = require('socket.io-client');
-var host = `${process.env.APP_HOST || "localhost"}:${process.env.APP_PORT || 5002}`
 
-var workerList = []
-var balancer = 0
 if(process.env.APP_MODE){
   const privateKey = fs.readFileSync(path.join("/etc/nginx/ssl/k-telecom.org.key"), "utf8");
   const certificate = fs.readFileSync(path.join("/etc/nginx/ssl/k-telecom.org.crt"), "utf8");
@@ -21,25 +18,12 @@ if(process.env.APP_MODE){
   };
   var https = require("https").Server(optSsl,application);
   var is = require("socket.io")(https);
-  host = 'https://'+host
-  for (let i = 0; i < 3; i++) {
-    workerList.push(new wt.Worker('./worker.js',{
-      parentPort:5111
-    }))
-  }
 }
 else{
   var http = require("http").Server(application);
   var is = require("socket.io")(http);
-  host = 'http://'+host
-  for (let i = 0; i < 3; i++) {    
-    workerList.push(new wt.Worker('./worker.js',{
-    parentPort:5111
-  }))
-  }
 }
 
-//var ioClient = io.connect(host)
 const cors = require('cors');
 
 const corsOptions = {
@@ -75,7 +59,7 @@ const mqttClient = mqtt.connect(mqttUrl, mqttOptions);
 mqttClient.on("connect", function () {
   if (mqttClient.connected) {
     console.log("conected");
-    mqttClient.subscribe("#");  // Подпись на все топики где только 3 эллемента
+    mqttClient.subscribe("$share/queue/#");
   } else {
     console.log("disconeted");
   }
@@ -114,16 +98,38 @@ is.on("connection", function (socket) {
   });
 });
 
-mqttClient.on("message", async function (topic, payload) {
-  const forWorkerData = {
-    topic : topic,
-    payload: payload.toString()
-  }
-  workerList[balancer].postMessage(JSON.stringify(forWorkerData))
-  balancer==workerList.length-1 ? balancer=0:balancer+=1
+mqttClient.on("message", async function (topic, payload, packet) {
   //is.emit('test', obj, getTopic)
   // Payload is Buffer
+  var getTopic = topic.split("/");   //  Получаем топики
   
+  try {
+    var obj = JSON.parse(payload.toString())
+    obj.linkquality? obj.linkquality = Math.round((obj.linkquality/255)*100) :""
+    let cmdData = {
+      payload: obj,
+      topic:{
+        gatewayId: getTopic[1],
+        elementID: getTopic[2]
+      }
+    }
+    if(getTopic[3] != "set") is.to(getTopic[0]).emit("cmd", JSON.stringify(cmdData));
+    if (getTopic.length == 3 || obj['mT']) {
+      await saveToDb(obj, getTopic)
+    }
+    if(obj['type']=="device_connected"){
+      const sensor = await createNewSensor(obj, getTopic)
+      //mqttClient.publish("cmd", sensor.id,)
+      const message = {
+        type:"device_created",
+        sensorId: sensor.id
+        }
+      is.to(getTopic[0]).emit("cmd", JSON.stringify(message));
+    }
+
+  } catch (e) {
+    obj != "online" || obj != "online"?console.log(e):""
+  }
 });
 
 
@@ -136,8 +142,4 @@ else{
   http.listen(5002, function () {
     console.log("Клиентский канал запущен, порт: " + 5002);
   });
-}
-
-module.exports = {
-  is
 }
