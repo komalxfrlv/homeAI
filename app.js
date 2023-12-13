@@ -59,7 +59,7 @@ const mqttClient = mqtt.connect(mqttUrl, mqttOptions);
 mqttClient.on("connect", function () {
   if (mqttClient.connected) {
     console.log("conected");
-    mqttClient.subscribe("$share/queue/#");
+    mqttClient.subscribe(`$share/${process.env.MQTT_GROUP}/#`);
   } else {
     console.log("disconeted");
   }
